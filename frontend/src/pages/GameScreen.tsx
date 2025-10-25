@@ -18,45 +18,6 @@ interface GameScreenProps {
   onBack: () => void;
 }
 
-// Helper function to get a random word based on subcategory
-function getRandomWord(subcategory: string): string {
-  const wordLists: Record<string, string[]> = {
-    // Sports
-    'NBA': ['Basketball', 'Lakers', 'Jordan', 'Lebron', 'Dunk'],
-    'NFL': ['Football', 'Touchdown', 'Quarterback', 'Patriots', 'Brady'],
-    'Soccer': ['Goal', 'Messi', 'Ronaldo', 'WorldCup', 'Penalty'],
-    // Politics
-    'US Politics': ['President', 'Congress', 'Senate', 'Election', 'Democracy'],
-    'World Leaders': ['Prime Minister', 'Chancellor', 'President', 'Diplomat', 'Summit'],
-    // Computer Science
-    'Programming': ['Python', 'JavaScript', 'Algorithm', 'Function', 'Variable'],
-    'Algorithms': ['Sorting', 'Recursion', 'Binary Search', 'Dynamic Programming', 'Graph'],
-    // Add more as needed
-  };
-  
-  const words = wordLists[subcategory] || ['Example', 'Word', 'Test', 'Sample', 'Demo'];
-  return words[Math.floor(Math.random() * words.length)];
-}
-
-// Helper function to generate AI guesses
-function generateAIGuess(targetWord: string, clues: string[]): string {
-  // Simple mock AI - in production this would call your backend
-  const possibleGuesses = [
-    targetWord,
-    'Random guess',
-    'Another try',
-    'Close one',
-    'Almost there'
-  ];
-  
-  // 30% chance to guess correctly after 3 clues
-  if (clues.length >= 3 && Math.random() < 0.3) {
-    return targetWord;
-  }
-  
-  return possibleGuesses[Math.floor(Math.random() * possibleGuesses.length)];
-}
-
 interface Message {
   id: string;
   type: 'clue' | 'guess' | 'system';
@@ -65,30 +26,54 @@ interface Message {
 }
 
 export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScreenProps) {
+  const [gameSessionId, setGameSessionId] = useState<string>('');
   const [currentWord, setCurrentWord] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [timeLeft, setTimeLeft] = useState(60);
   const [isRoundActive, setIsRoundActive] = useState(true);
   const [cluesGiven, setCluesGiven] = useState<string[]>([]);
-  const [isRecording, setIsRecording] = useState(false);
-  const [recordingText, setRecordingText] = useState('');
+  const [inputText, setInputText] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [roundStartTime, setRoundStartTime] = useState<number>(Date.now());
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Initialize game session on first mount
+  useEffect(() => {
+    // Generate a simple session ID
+    setGameSessionId(`session_${Date.now()}`);
+  }, []); // Run once on mount
 
   // Initialize new round
   useEffect(() => {
-    const word = getRandomWord(gameData.subcategory);
-    setCurrentWord(word);
-    setMessages([
-      {
-        id: Date.now().toString(),
-        type: 'system',
-        text: `Round ${gameData.round} of ${gameData.totalRounds} - Give voice clues to describe the word!`,
-      },
-    ]);
-    setTimeLeft(60);
-    setIsRoundActive(true);
-    setCluesGiven([]);
-  }, [gameData.round, gameData.subcategory, gameData.totalRounds]);
+    const initializeRound = () => {
+      if (!gameSessionId) return;
+
+      setIsLoading(true);
+      
+      // Generate a sample word based on category/subcategory
+      const sampleWords = [
+        'Elephant', 'Galaxy', 'Volcano', 'Symphony', 'Democracy',
+        'Photosynthesis', 'Renaissance', 'Quantum', 'Algorithm', 'Ecosystem'
+      ];
+      const randomWord = sampleWords[Math.floor(Math.random() * sampleWords.length)];
+      
+      setCurrentWord(randomWord);
+      setMessages([
+        {
+          id: Date.now().toString(),
+          type: 'system',
+          text: `Round ${gameData.round} of ${gameData.totalRounds} - Give clues to describe the word!`,
+        },
+      ]);
+      setTimeLeft(60);
+      setIsRoundActive(true);
+      setCluesGiven([]);
+      setRoundStartTime(Date.now());
+      setIsLoading(false);
+    };
+
+    initializeRound();
+  }, [gameData.round, gameData.subcategory, gameData.totalRounds, gameSessionId]);
 
   // Timer countdown
   useEffect(() => {
@@ -112,46 +97,25 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const handleStartRecording = () => {
-    setIsRecording(true);
-    setRecordingText('');
-    // Show toast notification if available
-    console.info('Recording started... Speak your clue!');
+  const handleSubmitClue = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!inputText.trim() || !isRoundActive) return;
 
-    // Simulate recording for 3 seconds
-    setTimeout(() => {
-      handleStopRecording();
-    }, 3000);
-  };
-
-  const handleStopRecording = () => {
-    if (!isRecording) return;
-    
-    setIsRecording(false);
-    
-    // Simulate transcribed text
-    const simulatedClues = [
-      'It\'s a sport played with a ball',
-      'This person is very famous',
-      'It happens on a court or field',
-      'Teams compete against each other',
-      'People watch it on TV',
-      'It requires athletic ability',
-    ];
-    
-    const randomClue = simulatedClues[Math.floor(Math.random() * simulatedClues.length)];
-    setRecordingText(randomClue);
-    
-    // Process the clue
-    handleSendClue(randomClue);
-  };
-
-  const handleSendClue = (clue: string) => {
-    if (!clue.trim() || !isRoundActive) return;
+    const clue = inputText.trim();
+    setInputText(''); // Clear input after submission
 
     // Check if player accidentally says the word
     if (clue.toLowerCase().includes(currentWord.toLowerCase())) {
       console.error("You can't use the target word in your clue!");
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now().toString(),
+          type: 'system',
+          text: "⚠️ You can't use the target word in your clue!",
+        },
+      ]);
       return;
     }
 
@@ -166,30 +130,47 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
     };
     setMessages((prev) => [...prev, clueMessage]);
 
-    // Generate AI guess
+    // Simulate AI guess after a delay
     setTimeout(() => {
-      const aiGuess = generateAIGuess(currentWord, newClues);
-      const isCorrect = aiGuess.toLowerCase() === currentWord.toLowerCase();
+      // Simple AI logic: randomly decide if the AI guesses correctly
+      // In a real implementation, this would call an AI service
+      const shouldGuessCorrectly = Math.random() > 0.6; // 40% chance AI guesses correctly
+      
+      const aiGuessText = shouldGuessCorrectly 
+        ? `Is it "${currentWord}"?`
+        : `Hmm... is it "${generateRandomGuess()}"?`;
 
       const guessMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'guess',
-        text: aiGuess,
-        isCorrect,
+        text: aiGuessText,
+        isCorrect: shouldGuessCorrectly,
       };
       setMessages((prev) => [...prev, guessMessage]);
 
-      if (isCorrect) {
+      if (shouldGuessCorrectly) {
         handleRoundEnd(true);
       }
     }, 1200);
   };
 
+  // Helper function to generate a random incorrect guess
+  const generateRandomGuess = () => {
+    const guesses = [
+      'Computer', 'Mountain', 'Ocean', 'Building', 'Vehicle',
+      'Animal', 'Planet', 'Book', 'Music', 'Science'
+    ];
+    return guesses[Math.floor(Math.random() * guesses.length)];
+  };
+
   const handleRoundEnd = (aiGuessed: boolean) => {
     setIsRoundActive(false);
 
+    const timeElapsed = Math.floor((Date.now() - roundStartTime) / 1000);
+    console.log(`Round ended. Time elapsed: ${timeElapsed}s, AI guessed: ${aiGuessed}`);
+
     if (aiGuessed) {
-      console.error(`${gameData.character} guessed "${currentWord}"! No point this round.`);
+      console.log(`${gameData.character} guessed "${currentWord}"! No point this round.`);
       setMessages((prev) => [
         ...prev,
         {
@@ -215,6 +196,8 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
 
   const handleNextRound = () => {
     if (gameData.round >= gameData.totalRounds) {
+      // Complete the game
+      console.log('Game completed!', { gameSessionId, finalScore: gameData.score });
       onEndGame();
     } else {
       setGameData({ ...gameData, round: gameData.round + 1 });
@@ -222,6 +205,18 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
   };
 
   const timePercentage = (timeLeft / 60) * 100;
+
+  // Show loading state while fetching word
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200 flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 dark:border-blue-400 mb-4"></div>
+          <p className="text-gray-700 dark:text-gray-300 text-lg">Loading round {gameData.round}...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
@@ -304,9 +299,6 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
                 <p className="text-gray-500 dark:text-gray-400 text-sm">{gameData.subcategory} Expert</p>
               </div>
             </div>
-            <div className="inline-flex items-center px-3 py-1 bg-green-100 dark:bg-green-900/30 border border-green-400 dark:border-green-500 text-green-700 dark:text-green-400 rounded-full text-sm font-medium">
-              Listening...
-            </div>
           </div>
         </div>
 
@@ -320,48 +312,41 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
           </div>
         </div>
 
-        {/* Recording Controls */}
+        {/* Input Controls */}
         <div className="space-y-4">
           <div className="p-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
-            <div className="flex flex-col items-center gap-4">
-              <p className="text-gray-700 dark:text-gray-300 text-center">
-                {isRecording ? 'Recording your clue...' : 'Press and hold to give a voice clue'}
-              </p>
+            <form onSubmit={handleSubmitClue} className="flex flex-col gap-4">
+              <label htmlFor="clue-input" className="text-gray-700 dark:text-gray-300 text-center font-medium">
+                Enter your clue to describe the word
+              </label>
               
-              <button
-                className={`w-24 h-24 rounded-full text-white transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${
-                  isRecording
-                    ? 'bg-red-600 hover:bg-red-700 animate-pulse'
-                    : 'bg-blue-600 hover:bg-blue-700'
-                }`}
-                onMouseDown={handleStartRecording}
-                onMouseUp={handleStopRecording}
-                onTouchStart={handleStartRecording}
-                onTouchEnd={handleStopRecording}
-                disabled={!isRoundActive}
-              >
-                {isRecording ? (
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+              <div className="flex gap-3">
+                <input
+                  id="clue-input"
+                  type="text"
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  placeholder="Type your clue here..."
+                  disabled={!isRoundActive}
+                  className="flex-1 px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+                />
+                
+                <button
+                  type="submit"
+                  disabled={!isRoundActive || !inputText.trim()}
+                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-white font-semibold rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                   </svg>
-                ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                  </svg>
-                )}
-              </button>
-
-              {recordingText && (
-                <div className="text-gray-500 dark:text-gray-400 text-center text-sm">
-                  Last clue: "{recordingText}"
-                </div>
-              )}
+                  Send
+                </button>
+              </div>
 
               <p className="text-gray-400 dark:text-gray-500 text-center text-xs">
-                Simulated voice recording - In production, this would use Web Speech API
+                Don't use the target word in your clue!
               </p>
-            </div>
+            </form>
           </div>
 
           {/* Next Round Button */}
