@@ -161,23 +161,34 @@ def chat_stream(request, topic_name):
                                         return True
                         return False
                     
-                    # Check if AI guessed the word OR if user used the backdoor "ORAN"
-                    conversation.guesses_remaining -= 1
-                    if (conversation.current_word in self.text or "ORAN" in user_prompt):
-                        conversation.score += 1
+                    # Check for timeout signal first - don't decrement guesses for timeout
+                    if "__TIMEOUT__" in user_prompt:
+                        # Timer ran out - get new word and reset guesses
                         conversation.num_rounds -= 1
                         conversation.current_word = get_word(topic_name)
                         conversation.guesses_remaining = 3
-
-                        conversation.guesses_remaining = 3  # Reset to 3 guesses for new word
-                        request.user.userProfile.rounds_won += 1
                         request.user.userProfile.rounds_played += 1
                         request.user.userProfile.save()
-                    if (conversation.guesses_remaining == 0):
-                        conversation.num_rounds -= 1
-                        conversation.current_word = get_word(topic_name)
-                        request.user.userProfile.rounds_played += 1
-                        request.user.userProfile.save()
+                    else:
+                        # Normal guess logic
+                        conversation.guesses_remaining -= 1
+                        
+                        # Check if AI guessed the word OR if user used the backdoor "ORAN"
+                        if (conversation.current_word in self.text or "ORAN" in user_prompt):
+                            conversation.score += 1
+                            conversation.num_rounds -= 1
+                            conversation.current_word = get_word(topic_name)
+                            conversation.guesses_remaining = 3
+                            request.user.userProfile.rounds_won += 1
+                            request.user.userProfile.rounds_played += 1
+                            request.user.userProfile.save()
+                        elif (conversation.guesses_remaining == 0):
+                            # Out of guesses - get new word
+                            conversation.num_rounds -= 1
+                            conversation.current_word = get_word(topic_name)
+                            conversation.guesses_remaining = 3
+                            request.user.userProfile.rounds_played += 1
+                            request.user.userProfile.save()
                     
                     conversation.save()
                     processing_time = time.time() - start_time

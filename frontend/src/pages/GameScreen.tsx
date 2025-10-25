@@ -403,7 +403,7 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
     }
   };
 
-  const handleRoundEnd = (aiGuessed: boolean, wordToShow?: string) => {
+  const handleRoundEnd = async (aiGuessed: boolean, wordToShow?: string) => {
     setIsRoundActive(false);
 
     // Use the provided word or fall back to currentWord
@@ -423,15 +423,76 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
         },
       ]);
     } else {
-      console.log(`Time's up! AI didn't guess in time. The word was "${displayWord}".`);
+      // Timer ran out or out of guesses - need to get a new word from backend
+      console.log(`Time's up or out of guesses! The word was "${displayWord}".`);
       setMessages((prev) => [
         ...prev,
         {
           id: Date.now().toString(),
           type: 'system',
-          text: `Time's up! The word was "${displayWord}". AI didn't guess in time!`,
+          text: `Time's up! The word was "${displayWord}". Moving to next word...`,
         },
       ]);
+
+      // Always submit timeout signal to backend to get new word
+      try {
+        const topicName = gameData.subcategory.toLowerCase().replace(/ /g, '_');
+        
+        // Submit special timeout message to trigger backend word change
+        const response = await fetch(`http://localhost:8000/api/chat-stream/${topicName}/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Token ${authContext.token}`
+          },
+          body: JSON.stringify({
+            conversation_id: gameSessionId,
+            prompt: '__TIMEOUT__' // Special signal for timeout
+          }),
+        });
+
+        if (response.ok) {
+          // Read the stream
+          const reader = response.body!.getReader();
+          const decoder = new TextDecoder();
+          
+          while (true) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            
+            const chunk = decoder.decode(value, { stream: true });
+            const lines = chunk.split('\n\n');
+            
+            for (const line of lines) {
+              if (line.startsWith('data:')) {
+                try {
+                  const eventData = JSON.parse(line.substring(5));
+                  if (eventData.done) {
+                    // Fetch updated conversation to get new word
+                    const convResponse = await fetch(`http://localhost:8000/api/conversations/${gameSessionId}/`, {
+                      headers: {
+                        'Authorization': `Token ${authContext.token}`
+                      }
+                    });
+                    
+                    if (convResponse.ok) {
+                      const convData = await convResponse.json();
+                      setCurrentWord(convData.current_word);
+                      setGuessesRemaining(convData.guesses_remaining || 3);
+                      console.log('New word after timeout:', convData.current_word);
+                    }
+                    break;
+                  }
+                } catch (e) {
+                  console.error('Error parsing timeout response:', e);
+                }
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error handling round end:', error);
+      }
     }
   };
 
