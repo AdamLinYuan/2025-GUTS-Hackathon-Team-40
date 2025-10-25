@@ -510,6 +510,26 @@ def upload_terms(request):
         print(f"upload_terms error: {e}")
         return Response({"error": "Failed to extract terms"}, status=500)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def random_avatar_subject(request, topic_name: str):
+    """Return a random subject string from backend/api/topics/<topic_name>.txt.
+    This is used by the frontend to seed a deterministic pixel avatar.
+    """
+    try:
+        safe_name = str(topic_name).strip().lower()
+        base_dir = os.path.join(os.path.dirname(__file__), 'topics')
+        filepath = os.path.join(base_dir, f"{safe_name}.txt")
+        if not os.path.isfile(filepath):
+            return Response({"error": f"Topic file not found: {safe_name}.txt"}, status=404)
+        with open(filepath, 'r') as f:
+            items = [line.strip() for line in f if line.strip()]
+        if not items:
+            return Response({"error": "No subjects in topic file"}, status=400)
+        subject = random.choice(items)
+        return Response({"subject": subject})
+    except Exception as e:
+        return Response({"error": f"Failed to select subject: {e}"}, status=500)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
