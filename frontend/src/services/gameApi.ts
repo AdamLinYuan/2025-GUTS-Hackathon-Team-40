@@ -183,11 +183,12 @@ export const checkIfCorrectGuess = async (
   };
 };
 
-export const uploadTerms = async (file: File, maxTerms = 50): Promise<string[]> => {
+export const uploadTerms = async (file: File, maxTerms = 50,topicName): Promise<string[]> => {
   const token = getAuthToken();
   const form = new FormData();
   form.append('file', file);
   form.append('max_terms', String(maxTerms));
+  form.append('topic_name', topicName);
 
   const response = await fetch(`${API_BASE_URL}/upload-terms/`, {
     method: 'POST',
