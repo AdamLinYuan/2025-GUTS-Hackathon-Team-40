@@ -75,8 +75,6 @@ def chat_stream(request, topic_name):
                     current_word=get_word(topic_name),
 
                 )
-                request.user.userprofile.rounds_played += 1
-                request.user.userprofile.save()
                 print(f"Created conversation {conversation.id} for user {request.user.username}")
             except Exception as e:
                 print(f"Error creating conversation: {str(e)}")
@@ -179,7 +177,7 @@ def chat_stream(request, topic_name):
                         conversation.guesses_remaining -= 1
                         
                         # Check if AI guessed the word OR if user used the backdoor "ORAN"
-                        if (conversation.current_word in self.text or "ORAN" in user_prompt):
+                        if (is_near_match(conversation.current_word,self.text) or "ORAN" in user_prompt):
                             conversation.score += 1
                             conversation.num_rounds -= 1
                             conversation.current_word = get_word(topic_name)

@@ -93,9 +93,12 @@ const DashboardPage = () => {
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md transition-colors duration-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Member Since</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Win/Loss Ratio</p>
                 <p className="text-lg font-semibold text-purple-600 dark:text-purple-400 mt-2">
-                  {authContext.user?.date_joined ? new Date(authContext.user.date_joined).toLocaleDateString() : '-'}
+                  {userprofile.rounds_played > 0 
+                    ? `${((userprofile.rounds_won / userprofile.rounds_played) * 100).toFixed(1)}%`
+                    : '0%'
+                  }
                 </p>
               </div>
               <div className="bg-purple-100 dark:bg-purple-900 p-3 rounded-full">

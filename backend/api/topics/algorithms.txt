@@ -28,8 +28,8 @@ Ford-Fulkerson Algorithm
 Edmonds-Karp Algorithm
 Dinic's Algorithm
 Kahn's Algorithm
-Floyd’s Cycle Detection
-Brent’s Cycle Detection
+Floyd's Cycle Detection
+Brent's Cycle Detection
 Knuth-Morris-Pratt Algorithm
 Rabin-Karp Algorithm
 Boyer-Moore Algorithm
@@ -91,7 +91,7 @@ Suffix Array Construction
 Suffix Tree Construction
 Manacher's Algorithm
 Karatsuba Multiplication
-Strassen’s Matrix Multiplication
+Strassen's Matrix Multiplication
 Fast Fourier Transform
 Cooley-Tukey FFT
 Reservoir Sampling
