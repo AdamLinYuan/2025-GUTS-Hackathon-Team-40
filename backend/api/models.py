@@ -15,7 +15,7 @@ class UserProfile(models.Model):
 class Topic(models.Model): #sub-category
     topic_name = models.CharField(max_length=100)
     related_words = models.JSONField(default=list)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='conversations', null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='topics', null=True, blank=True)
     category = models.CharField(max_length=100, null=True, blank=True)
 
 
@@ -30,7 +30,7 @@ class Conversation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     score = models.PositiveIntegerField(default=0)
-    current_word = models.CharField(max_length=100)
+    current_word = models.CharField(max_length=100, default="")
     guesses_remaining = models.PositiveIntegerField(default=3)
     num_rounds = models.PositiveIntegerField(default=10)
     topic = models.ForeignKey(
