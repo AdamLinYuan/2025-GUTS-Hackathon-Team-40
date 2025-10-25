@@ -13,7 +13,7 @@ import time
 from django.db import transaction
 
 from .models import Conversation, Message, PromptLog, UserProfile
-from chatbot.llama_interface import get_llama_response, get_llama_response_stream
+from chatbot.gemini_interface import get_gemini_response, get_gemini_response_stream
 
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -141,7 +141,7 @@ def chat_stream(request):
         # Create a streaming response generator
         def event_stream():
             # Use the streaming interface
-            for chunk in get_llama_response_stream(full_prompt):
+            for chunk in get_gemini_response_stream(full_prompt):
                 # Add the chunk to our complete response
                 response_holder.add_text(chunk)
                 
@@ -210,7 +210,7 @@ def chat_demo(request):
         
         # Generate a response using the same function as chat_stream
         # but with a shorter context and capped token limit
-        response_text = get_llama_response(user_prompt)
+        response_text = get_gemini_response(user_prompt)
         
         # Calculate processing time
         processing_time = time.time() - start_time

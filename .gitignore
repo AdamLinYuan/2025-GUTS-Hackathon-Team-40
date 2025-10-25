@@ -1,0 +1,247 @@
+# ===================================
+# Python / Django
+# ===================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual Environments
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+pipenv/
+.pipenv/
+
+# Distribution / Packaging
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Django
+*.log
+*.pot
+db.sqlite3
+db.sqlite3-journal
+/static/
+/staticfiles/
+/media/
+/mediafiles/
+local_settings.py
+*.pyc
+
+# Django migrations (optional - uncomment if you want to ignore migrations)
+# **/migrations/*.py
+# **/migrations/*.pyc
+# !**/migrations/__init__.py
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# ===================================
+# Environment Variables & Secrets
+# ===================================
+.env
+.env.local
+.env.*.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+.envrc
+
+# ===================================
+# Node / JavaScript / TypeScript
+# ===================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+lerna-debug.log*
+
+# Build outputs
+dist/
+dist-ssr/
+build/
+.next/
+out/
+.nuxt/
+.cache/
+
+# Vite
+*.local
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Package manager lock files (optional - uncomment if you want to ignore)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# ===================================
+# IDE / Editors
+# ===================================
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.code-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+.netrwhist
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# Visual Studio
+.vs/
+
+# ===================================
+# Operating System
+# ===================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+.directory
+.Trash-*
+.nfs*
+
+# ===================================
+# AI Models & Large Files
+# ===================================
+models/*.gguf
+models/*.bin
+models/*.pt
+models/*.pth
+models/*.h5
+models/*.pb
+*.safetensors
+
+# ===================================
+# Testing & Coverage
+# ===================================
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.tox/
+.hypothesis/
+.nyc_output/
+coverage/
+*.cover
+*.py,cover
+.cache
+nosetests.xml
+coverage.xml
+*.coveragerc
+
+# Jest
+jest-report/
+
+# ===================================
+# Documentation
+# ===================================
+site/
+docs/_build/
+.mkdocs_cache/
+
+# ===================================
+# Jupyter Notebook
+# ===================================
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+*.ipynb
+
+# ===================================
+# Backup & Temporary Files
+# ===================================
+*.bak
+*.tmp
+*.temp
+*.orig
+*.rej
+*~.nib
+*.swp
+*.swo
+
+# ===================================
+# Logs
+# ===================================
+logs/
+*.log
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# ===================================
+# Security & Credentials
+# ===================================
+*.pem
+*.key
+*.cert
+*.csr
+secrets.yml
+credentials.yml
+
+# ===================================
+# Misc
+# ===================================
+.sass-cache/
+.eslintcache
+.stylelintcache
+.parcel-cache/
