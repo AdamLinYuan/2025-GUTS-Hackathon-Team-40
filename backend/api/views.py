@@ -55,7 +55,7 @@ def chat_stream(request):
                 title = "New Conversation"
 
 
-                topic = "HISTORICAL FIGURES" ###HARDCODED
+                topic = "HISTORICAL FIGURES"
 
                 title = f"TOPIC: {topic}"
                 
