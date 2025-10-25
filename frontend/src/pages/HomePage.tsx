@@ -1,9 +1,14 @@
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import '../index.css';
 import { useAuth } from '../context/AuthContext'; // Import the auth context
 
 const HomePage = () => {
   const { isAuthenticated } = useAuth(); // Use the auth context
+
+  // Redirect to dashboard if authenticated
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-200">
