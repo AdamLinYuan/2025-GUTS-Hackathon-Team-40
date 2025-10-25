@@ -103,9 +103,11 @@ const SubcategoriesPage = () => {
   const colors = colorClasses[currentCategory.color];
 
   const handleSubcategoryClick = async (subcategory: string) => {
-    // Convert subcategory to lowercase with underscores replacing spaces
+    if (category === 'custom' && subcategory === 'Upload Word List') {
+      navigate('/upload-word-list');
+      return;
+    }
     const topicName = subcategory.toLowerCase().replace(/ /g, '_');
-    
     try {
       // POST to backend with topic_name
       const response = await fetch('http://localhost:8000/api/chat-stream/', {
@@ -114,26 +116,20 @@ const SubcategoriesPage = () => {
           'Content-Type': 'application/json',
           'Authorization': `Token ${authContext.token}`
         },
-        body: JSON.stringify({
-          topic_name: topicName
-        })
+        body: JSON.stringify({ topic_name: topicName })
       });
-
       if (!response.ok) {
         console.error('Failed to set topic:', response.statusText);
       }
     } catch (error) {
       console.error('Error setting topic:', error);
     }
-
-    // Navigate to game regardless of API response
     navigate(`/game?category=${category}&subcategory=${encodeURIComponent(subcategory)}`);
   };
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-200">
       <main className="container mx-auto p-4 py-8">
-        {/* Header */}
         <div className="mb-8">
           <button
             onClick={() => navigate('/dashboard')}
@@ -160,7 +156,6 @@ const SubcategoriesPage = () => {
           </div>
         </div>
 
-        {/* Subcategories Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {currentCategory.subcategories.map((subcategory) => (
             <button
@@ -175,7 +170,6 @@ const SubcategoriesPage = () => {
           ))}
         </div>
 
-        {/* Info Box */}
         <div className={`mt-8 p-6 ${colors.bg} rounded-lg border-2 ${colors.border}`}>
           <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
             🎮 How It Works
