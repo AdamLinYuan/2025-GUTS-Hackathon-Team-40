@@ -586,7 +586,7 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
                 </svg>
                 Back
               </button>
-              <h1 className="text-lg font-semibold text-gray-900 dark:text-white">AI Articulate</h1>
+              <h1 className="text-lg font-semibold text-gray-900 dark:text-white">AI-ticulate</h1>
             </div>
             <div className="flex items-center gap-3">
               <div className="inline-flex items-center px-4 py-2 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-300 rounded-full text-sm font-medium">

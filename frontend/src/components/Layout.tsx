@@ -62,7 +62,7 @@ const Layout = ({ children, hideHeader = false }: LayoutProps) => {
           <header className="sticky top-0 z-50 bg-blue-800 text-white p-4 shadow-md">
             <div className="container mx-auto">
               <div className="flex justify-between items-center">
-                <h1 className="text-2xl font-bold">AIticulate</h1>
+                <h1 className="text-2xl font-bold">AI-ticulate</h1>
                 
                 {/* Authentication buttons */}
                 <div className="flex items-center space-x-4">
