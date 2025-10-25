@@ -84,8 +84,6 @@ def create_user_profile(sender, instance, created, **kwargs):
         UserProfile.objects.create(user=instance)
 
 @receiver(post_save, sender=User)
-def save_user_profile(sender, instance, **kwargs):
-    try:
-        instance.userProfile.save()
-    except UserProfile.DoesNotExist:
-        UserProfile.objects.create(user=instance)
+def create_or_update_user_profile(sender, instance, **kwargs):
+    # Idempotent: will create the profile if missing and avoid UNIQUE constraint failures
+    UserProfile.objects.get_or_create(user=instance)
