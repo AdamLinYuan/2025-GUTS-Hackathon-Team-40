@@ -29,7 +29,7 @@ class ConversationSerializer(serializers.ModelSerializer):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def chat_stream(request):
+def chat_stream(request, topic_name):
     """Full chatbot with history - requires authentication"""
     try:
         # Get conversation ID from request or create a new one
@@ -58,13 +58,18 @@ def chat_stream(request):
                 topic = "HISTORICAL FIGURES"
 
                 title = f"TOPIC: {topic}"
+            
+            DEFAULT_TOPIC = "ancient_history"
+            print(topic_list(request._request))
+            if not topic_name in topic_list(request._request):
+                topic_name = DEFAULT_TOPIC
                 
             # Create the conversation with error checking
             try:
                 conversation = Conversation.objects.create(
                     user=request.user,
                     title=title,
-                    current_word=get_word("historical_figures"),
+                    current_word=get_word(topic_name),
                 )
                 print(f"Created conversation {conversation.id} for user {request.user.username}")
             except Exception as e:
@@ -407,7 +412,7 @@ def topic_list(request):
     return [name for name in topic_list]
 
 def get_word(topic):
-    base_dir = os.path.join(os.path.dirname(__file__), 'data')
+    base_dir = os.path.join(os.path.dirname(__file__), 'topics')
     filepath = os.path.join(base_dir, f"{topic}.txt")
     with open(filepath, "r") as f:
         words = [line.strip() for line in f]

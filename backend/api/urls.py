@@ -10,7 +10,7 @@ urlpatterns = [
     path('auth/logout/', views.logout_view, name='logout'),
     
     # Chat endpoints - protected and demo versions
-    path('chat-stream/', views.chat_stream, name='chat_stream'),
+    path('chat-stream/<str:topic_name>/', views.chat_stream, name='chat_stream'),
     path('chat-demo/', views.chat_demo, name='chat_demo'),
 
     # Topic management

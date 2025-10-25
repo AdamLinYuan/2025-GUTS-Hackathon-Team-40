@@ -49,8 +49,9 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
         setIsLoading(true);
         setError('');
         
+        const topic_name = "nba_players"; 
         // Start a new conversation (game session) via the chat-stream endpoint
-        const response = await fetch('http://localhost:8000/api/chat-stream/', {
+        const response = await fetch('http://localhost:8000/api/chat-stream/<topic_name>/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
