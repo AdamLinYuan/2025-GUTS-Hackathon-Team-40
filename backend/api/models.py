@@ -79,11 +79,6 @@ class PromptLog(models.Model):
         return f"Prompt log {self.id} by {self.user.username if self.user else 'Anonymous'}"
 
 @receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        UserProfile.objects.create(user=instance)
-
-@receiver(post_save, sender=User)
 def create_or_update_user_profile(sender, instance, **kwargs):
     # Idempotent: will create the profile if missing and avoid UNIQUE constraint failures
     UserProfile.objects.get_or_create(user=instance)

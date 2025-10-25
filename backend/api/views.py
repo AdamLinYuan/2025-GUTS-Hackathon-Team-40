@@ -410,19 +410,26 @@ def reset_round(request, conversation_id):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def topic_list(request):
+def custom_topic_list(request):
     names = list(Topic.objects.filter(user=request.user).order_by('topic_name').values_list('topic_name', flat=True))
     return Response({"topics": names})
 
 def get_word(topic):
     base_dir = os.path.join(os.path.dirname(__file__), 'topics')
+    custom_dir = os.path.join(os.path.dirname(__file__), 'custom_topics')
     filepath = os.path.join(base_dir, f"{topic}.txt")
     
-    # Check if the topic file exists, if not default to ancient_history
+    # Check if the topic file exists in topics folder
     if not os.path.exists(filepath):
-        print(f"Topic file '{topic}.txt' not found, defaulting to ancient_history")
-        topic = "ancient_history"
-        filepath = os.path.join(base_dir, f"{topic}.txt")
+        # Try custom_topics folder
+        custom_filepath = os.path.join(custom_dir, f"{topic}.txt")
+        if os.path.exists(custom_filepath):
+            filepath = custom_filepath
+            print(f"Using custom topic file: {topic}.txt")
+        else:
+            print(f"Topic file '{topic}.txt' not found in topics or custom_topics, defaulting to ancient_history")
+            topic = "ancient_history"
+            filepath = os.path.join(base_dir, f"{topic}.txt")
     
     try:
         with open(filepath, "r") as f:
@@ -488,6 +495,14 @@ def upload_terms(request):
 
         pdf_bytes = upload.read()
         terms = extract_terms_from_pdf(pdf_bytes, max_terms=max_terms)
+        
+        # Log the number of terms extracted
+        print(f"Extracted {len(terms)} terms from PDF")
+        
+        # Check if we got any terms
+        if not terms:
+            return Response({"error": "No terms could be extracted from the PDF. Please ensure the PDF contains readable text."}, status=400)
+        
         if topic_name:
             topic_name = topic_name.strip()
             # Use authenticated user if available, else leave user null
@@ -501,6 +516,22 @@ def upload_terms(request):
                 # Update related_words if topic already exists
                 topic.related_words = terms
                 topic.save()
+            
+            # Save terms to a txt file in custom_topics folder
+            custom_topics_dir = os.path.join(os.path.dirname(__file__), 'custom_topics')
+            # Create directory if it doesn't exist
+            os.makedirs(custom_topics_dir, exist_ok=True)
+            
+            # Create filename (use topic_name with underscores, lowercase)
+            safe_filename = topic_name.lower().replace(' ', '_')
+            filepath = os.path.join(custom_topics_dir, f"{safe_filename}.txt")
+            
+            # Write terms to file (one per line)
+            with open(filepath, 'w') as f:
+                for term in terms:
+                    f.write(f"{term}\n")
+            
+            print(f"Saved {len(terms)} terms to {filepath}")
 
         all_topics = Topic.objects.all().order_by('topic_name').values_list('topic_name', flat=True)
         print("All topic names:", list(all_topics))

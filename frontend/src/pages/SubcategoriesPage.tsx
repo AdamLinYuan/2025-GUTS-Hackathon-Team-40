@@ -1,11 +1,44 @@
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useState, useEffect } from 'react';
 
 const SubcategoriesPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const authContext = useAuth();
   const category = searchParams.get('category') || '';
+  const [customTopics, setCustomTopics] = useState<string[]>([]);
+  const [isLoadingCustomTopics, setIsLoadingCustomTopics] = useState(false);
+
+  // Fetch custom topics when category is 'custom'
+  useEffect(() => {
+    if (category === 'custom' && authContext.token) {
+      setIsLoadingCustomTopics(true);
+      fetch('http://localhost:8000/api/custom-topic-list/', {
+        headers: {
+          'Authorization': `Token ${authContext.token}`
+        }
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.topics && Array.isArray(data.topics)) {
+            // Format topic names for display (replace underscores with spaces, capitalize)
+            const formattedTopics = data.topics.map((topic: string) => 
+              topic.split('_').map(word => 
+                word.charAt(0).toUpperCase() + word.slice(1)
+              ).join(' ')
+            );
+            setCustomTopics(formattedTopics);
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching custom topics:', error);
+        })
+        .finally(() => {
+          setIsLoadingCustomTopics(false);
+        });
+    }
+  }, [category, authContext.token]);
 
   const categoryData: Record<string, { name: string; icon: string; color: string; subcategories: string[] }> = {
     'sports': {
@@ -42,7 +75,9 @@ const SubcategoriesPage = () => {
       name: 'Custom',
       icon: '✨',
       color: 'pink',
-      subcategories: ['Create Your Own', 'Upload Word List', 'Mix Categories', 'Random Mode', 'Saved Lists']
+      subcategories: customTopics.length > 0 
+        ? customTopics 
+        : []
     }
   };
 
@@ -157,18 +192,85 @@ const SubcategoriesPage = () => {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {currentCategory.subcategories.map((subcategory) => (
-            <button
-              key={subcategory}
-              onClick={() => handleSubcategoryClick(subcategory)}
-              className={`p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md ${colors.hover} transition-all duration-200 hover:shadow-lg hover:scale-105 transform border-2 ${colors.border}`}
-            >
-              <h3 className={`text-lg font-semibold text-center ${colors.text}`}>
-                {subcategory}
-              </h3>
-            </button>
-          ))}
+          {isLoadingCustomTopics && category === 'custom' ? (
+            <div className="col-span-full flex justify-center items-center py-12">
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-pink-600 dark:border-pink-400"></div>
+            </div>
+          ) : category === 'custom' && currentCategory.subcategories.length === 0 ? (
+            <div className="col-span-full text-center py-12">
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                No custom word lists yet. Upload a PDF to get started!
+              </p>
+            </div>
+          ) : (
+            currentCategory.subcategories.map((subcategory) => (
+              <button
+                key={subcategory}
+                onClick={() => handleSubcategoryClick(subcategory)}
+                className={`p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md ${colors.hover} transition-all duration-200 hover:shadow-lg hover:scale-105 transform border-2 ${colors.border}`}
+              >
+                <h3 className={`text-lg font-semibold text-center ${colors.text}`}>
+                  {subcategory}
+                </h3>
+              </button>
+            ))
+          )}
         </div>
+
+        {/* Action Buttons for Custom Category */}
+        {category === 'custom' && (
+          <div className="mt-8">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+              📋 Actions
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <button
+                onClick={() => navigate('/upload-word-list')}
+                className={`p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md ${colors.hover} transition-all duration-200 hover:shadow-lg hover:scale-105 transform border-2 ${colors.border} flex flex-col items-center gap-2`}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className={`w-8 h-8 ${colors.text}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                <h3 className={`text-lg font-semibold text-center ${colors.text}`}>
+                  Upload Word List
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
+                  Upload a PDF to create a new word list
+                </p>
+              </button>
+
+              <button
+                onClick={() => handleSubcategoryClick('Random Mode')}
+                className={`p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md ${colors.hover} transition-all duration-200 hover:shadow-lg hover:scale-105 transform border-2 ${colors.border} flex flex-col items-center gap-2`}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className={`w-8 h-8 ${colors.text}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <h3 className={`text-lg font-semibold text-center ${colors.text}`}>
+                  Random Mode
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
+                  Play with random words from all lists
+                </p>
+              </button>
+
+              <button
+                onClick={() => handleSubcategoryClick('Saved Lists')}
+                className={`p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md ${colors.hover} transition-all duration-200 hover:shadow-lg hover:scale-105 transform border-2 ${colors.border} flex flex-col items-center gap-2`}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className={`w-8 h-8 ${colors.text}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                </svg>
+                <h3 className={`text-lg font-semibold text-center ${colors.text}`}>
+                  Saved Lists
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
+                  Manage your saved word lists
+                </p>
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className={`mt-8 p-6 ${colors.bg} rounded-lg border-2 ${colors.border}`}>
           <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
