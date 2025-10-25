@@ -1,3 +1,4 @@
+import AvatarSprite from '../components/AvatarSprite';
 interface Message {
   id: string;
   type: 'clue' | 'guess' | 'system';
@@ -47,10 +48,8 @@ export function ChatMessage({ message }: ChatMessageProps) {
   if (message.type === 'guess') {
     return (
       <div className="flex items-start gap-3">
-        <div className="w-8 h-8 rounded-full bg-purple-600 dark:bg-purple-700 flex items-center justify-center flex-shrink-0">
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-          </svg>
+        <div className="flex-shrink-0" style={{ width: 32, height: 32 }}>
+          <AvatarSprite name={message.text} size={32} />
         </div>
         <div className="max-w-[70%] space-y-1">
           <div className="flex items-center gap-2">

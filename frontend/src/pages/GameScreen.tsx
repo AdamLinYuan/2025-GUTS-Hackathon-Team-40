@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { ChatMessage } from './ChatMessage';
+import AvatarSprite from '../components/AvatarSprite';
 import { useAuth } from '../context/AuthContext';
 
 // Game data interface
@@ -52,6 +53,21 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
         
         // Convert subcategory to topic_name format (lowercase with underscores)
         const topicName = gameData.subcategory.toLowerCase().replace(/ /g, '_');
+
+        // Fetch a random subject from backend to use as the AI character avatar/label
+        try {
+          const subjectRes = await fetch(`http://localhost:8000/api/topics/${topicName}/random-subject/`, {
+            headers: { 'Authorization': `Token ${authContext.token}` }
+          });
+          if (subjectRes.ok) {
+            const { subject } = await subjectRes.json();
+            if (subject && typeof subject === 'string') {
+              setGameData({ ...gameData, character: subject });
+            }
+          }
+        } catch (_e) {
+          // Non-fatal; fall back to existing character name
+        }
         
         // Start a new conversation (game session) via the chat-stream endpoint
         const response = await fetch(`http://localhost:8000/api/chat-stream/${topicName}/`, {
@@ -630,10 +646,8 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
         <div className="p-4 mb-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-blue-500 dark:bg-blue-600 flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-                </svg>
+              <div className="w-12 h-12">
+                <AvatarSprite name={gameData.character} size={48} />
               </div>
               <div>
                 <h3 className="text-gray-900 dark:text-white font-semibold">{gameData.character}</h3>
