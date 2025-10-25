@@ -5,7 +5,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='userProfile')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='userprofile')
     last_active = models.DateTimeField(default=timezone.now)
     rounds_played = models.IntegerField(default=0)
     rounds_won = models.IntegerField(default=0)
@@ -33,7 +33,7 @@ class Conversation(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     score = models.PositiveIntegerField(default=0)
     current_word = models.CharField(max_length=100, default="")
-    guesses_remaining = models.PositiveIntegerField(default=3)
+    guesses_remaining = models.PositiveIntegerField(default=4)
     num_rounds = models.PositiveIntegerField(default=5)
     topic = models.ForeignKey(
         Topic,
@@ -77,11 +77,6 @@ class PromptLog(models.Model):
     
     def __str__(self):
         return f"Prompt log {self.id} by {self.user.username if self.user else 'Anonymous'}"
-
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        UserProfile.objects.create(user=instance)
 
 @receiver(post_save, sender=User)
 def create_or_update_user_profile(sender, instance, **kwargs):

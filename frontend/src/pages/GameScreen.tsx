@@ -32,7 +32,7 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
   const [gameSessionId, setGameSessionId] = useState<string>('');
   const [currentWord, setCurrentWord] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
-  const [timeLeft, setTimeLeft] = useState(60);
+  const [timeLeft, setTimeLeft] = useState(30);
   const [isRoundActive, setIsRoundActive] = useState(true);
   const [cluesGiven, setCluesGiven] = useState<string[]>([]);
   const [inputText, setInputText] = useState('');
@@ -207,7 +207,7 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
             text: `Round ${gameData.round} of ${gameData.totalRounds} - Give clues to describe the word!`,
           },
         ]);
-        setTimeLeft(60);
+        setTimeLeft(30);
         setIsRoundActive(true);
         setCluesGiven([]);
         setRoundStartTime(Date.now());
@@ -533,7 +533,7 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
     }
   };
 
-  const timePercentage = (timeLeft / 60) * 100;
+  const timePercentage = (timeLeft / 30) * 100;
 
   // Show error state
   if (error) {
@@ -573,9 +573,9 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200">
       {/* Header */}
-      <header className="bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      <header className="sticky top-0 z-50 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between py-3">
             <div className="flex items-center gap-4">
               <button
                 onClick={onBack}
@@ -606,30 +606,29 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
               </div>
             </div>
           </div>
+          {/* Timer */}
+          <div className="pb-3">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-gray-500 dark:text-gray-400 flex items-center gap-2 text-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Time Remaining
+              </span>
+              <span className="text-gray-900 dark:text-white font-semibold">{timeLeft}s</span>
+            </div>
+            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
+              <div 
+                className="bg-blue-600 dark:bg-blue-500 h-full transition-all duration-1000 ease-linear"
+                style={{ width: `${timePercentage}%` }}
+              />
+            </div>
+          </div>
         </div>
       </header>
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Timer */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-gray-500 dark:text-gray-400 flex items-center gap-2 text-sm">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Time Remaining
-            </span>
-            <span className="text-gray-900 dark:text-white font-semibold">{timeLeft}s</span>
-          </div>
-          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
-            <div 
-              className="bg-blue-600 dark:bg-blue-500 h-full transition-all duration-1000 ease-linear"
-              style={{ width: `${timePercentage}%` }}
-            />
-          </div>
-        </div>
-
         {/* Target Word */}
         <div className="p-6 mb-6 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/50 dark:to-purple-900/50 border border-blue-200 dark:border-blue-700/50 rounded-lg">
           <div className="flex items-center justify-center gap-3">

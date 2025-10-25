@@ -10,7 +10,7 @@ urlpatterns = [
 
     path('chat-stream/<str:topic_name>/', views.chat_stream, name='chat_stream'),
     path('chat-demo/', views.chat_demo, name='chat_demo'),
-    path('topic-list/', views.topic_list, name='topic_list'),
+    path('custom-topic-list/', views.custom_topic_list, name='topic_list'),
     path('set-topic/', views.set_topic, name='set_topic'),
     path('upload-terms/', views.upload_terms, name='upload_terms'),
     path('conversations/', views.conversation_list, name='conversation_list'),
@@ -18,4 +18,6 @@ urlpatterns = [
     path('conversations/<int:conversation_id>/reset-round/', views.reset_round, name='reset_round'),
     path('topics/<str:topic_name>/random-subject/', views.random_avatar_subject, name='random_avatar_subject'),
     path('icons/random/', views.random_famous_icon, name='random_famous_icon'),
+    path('user-details/', views.user_details, name='user_details'),
+    path('user-profile/', views.user_profile, name='user-profile'),
 ]
