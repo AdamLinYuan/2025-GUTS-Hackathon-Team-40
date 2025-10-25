@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { ChatMessage } from './ChatMessage';
+import { useAuth } from '../context/AuthContext';
 
 // Game data interface
 interface GameData {
@@ -26,6 +27,7 @@ interface Message {
 }
 
 export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScreenProps) {
+  const authContext = useAuth();
   const [gameSessionId, setGameSessionId] = useState<string>('');
   const [currentWord, setCurrentWord] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
@@ -35,45 +37,155 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [roundStartTime, setRoundStartTime] = useState<number>(Date.now());
+  const [currentScore, setCurrentScore] = useState(0);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [error, setError] = useState<string>('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Initialize game session on first mount
   useEffect(() => {
-    // Generate a simple session ID
-    setGameSessionId(`session_${Date.now()}`);
+    const initializeGame = async () => {
+      try {
+        setIsLoading(true);
+        setError('');
+        
+        // Start a new conversation (game session) via the chat-stream endpoint
+        const response = await fetch('http://localhost:8000/api/chat-stream/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Token ${authContext.token}`
+          },
+          body: JSON.stringify({
+            conversation_id: null,
+            prompt: `Starting game: ${gameData.category} - ${gameData.subcategory}, ${gameData.totalRounds} rounds`
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to start game session');
+        }
+
+        // Read the stream to get conversation_id and initial word
+        const reader = response.body!.getReader();
+        const decoder = new TextDecoder();
+        let conversationId = '';
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split('\n\n');
+          
+          for (const line of lines) {
+            if (line.startsWith('data:')) {
+              try {
+                const eventData = JSON.parse(line.substring(5));
+                
+                if (eventData.done && eventData.conversation_id) {
+                  conversationId = eventData.conversation_id;
+                  break;
+                }
+              } catch (e) {
+                console.error('Error parsing event data:', e);
+              }
+            }
+          }
+
+          if (conversationId) break;
+        }
+
+        if (!conversationId) {
+          throw new Error('Failed to get conversation ID');
+        }
+
+        // Fetch conversation details to get the current word
+        const convResponse = await fetch(`http://localhost:8000/api/conversations/${conversationId}/`, {
+          headers: {
+            'Authorization': `Token ${authContext.token}`
+          }
+        });
+
+        if (!convResponse.ok) {
+          throw new Error('Failed to fetch conversation details');
+        }
+
+        const convData = await convResponse.json();
+        
+        setGameSessionId(conversationId);
+        setCurrentWord(convData.current_word);
+        setCurrentScore(convData.score || 0);
+        
+        console.log('Game session started:', {
+          conversationId,
+          currentWord: convData.current_word,
+          score: convData.score,
+          numRounds: convData.num_rounds
+        });
+        
+      } catch (error) {
+        console.error('Failed to start game session:', error);
+        setError('Failed to connect to game server. Please try again or contact support.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeGame();
   }, []); // Run once on mount
 
   // Initialize new round
   useEffect(() => {
-    const initializeRound = () => {
+    const initializeRound = async () => {
       if (!gameSessionId) return;
 
       setIsLoading(true);
       
-      // Generate a sample word based on category/subcategory
-      const sampleWords = [
-        'Elephant', 'Galaxy', 'Volcano', 'Symphony', 'Democracy',
-        'Photosynthesis', 'Renaissance', 'Quantum', 'Algorithm', 'Ecosystem'
-      ];
-      const randomWord = sampleWords[Math.floor(Math.random() * sampleWords.length)];
-      
-      setCurrentWord(randomWord);
-      setMessages([
-        {
-          id: Date.now().toString(),
-          type: 'system',
-          text: `Round ${gameData.round} of ${gameData.totalRounds} - Give clues to describe the word!`,
-        },
-      ]);
-      setTimeLeft(60);
-      setIsRoundActive(true);
-      setCluesGiven([]);
-      setRoundStartTime(Date.now());
-      setIsLoading(false);
+      try {
+        // Fetch current word from backend
+        const response = await fetch(`http://localhost:8000/api/conversations/${gameSessionId}/`, {
+          headers: {
+            'Authorization': `Token ${authContext.token}`
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch conversation');
+        }
+
+        const convData = await response.json();
+        setCurrentWord(convData.current_word);
+        setCurrentScore(convData.score || 0);
+        
+        console.log(`Round ${gameData.round} initialized:`, {
+          conversationId: gameSessionId,
+          currentWord: convData.current_word,
+          score: convData.score,
+          numRounds: convData.num_rounds
+        });
+        
+        setMessages([
+          {
+            id: Date.now().toString(),
+            type: 'system',
+            text: `Round ${gameData.round} of ${gameData.totalRounds} - Give clues to describe the word!`,
+          },
+        ]);
+        setTimeLeft(60);
+        setIsRoundActive(true);
+        setCluesGiven([]);
+        setRoundStartTime(Date.now());
+      } catch (error) {
+        console.error('Failed to initialize round:', error);
+        setCurrentWord('Error');
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     initializeRound();
-  }, [gameData.round, gameData.subcategory, gameData.totalRounds, gameSessionId]);
+  }, [gameData.round, gameData.subcategory, gameData.totalRounds, gameSessionId, authContext.token]);
 
   // Timer countdown
   useEffect(() => {
@@ -130,65 +242,160 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
     };
     setMessages((prev) => [...prev, clueMessage]);
 
-    // Simulate AI guess after a delay
-    setTimeout(() => {
-      // Simple AI logic: randomly decide if the AI guesses correctly
-      // In a real implementation, this would call an AI service
-      const shouldGuessCorrectly = Math.random() > 0.6; // 40% chance AI guesses correctly
+    // Store the previous score to detect if AI guessed correctly
+    const previousScore = currentScore;
+
+    try {
+      setIsStreaming(true);
       
-      const aiGuessText = shouldGuessCorrectly 
-        ? `Is it "${currentWord}"?`
-        : `Hmm... is it "${generateRandomGuess()}"?`;
+      // Submit clue via the chat-stream endpoint
+      const response = await fetch('http://localhost:8000/api/chat-stream/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Token ${authContext.token}`
+        },
+        body: JSON.stringify({
+          conversation_id: gameSessionId,
+          prompt: clue
+        }),
+      });
 
-      const guessMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        type: 'guess',
-        text: aiGuessText,
-        isCorrect: shouldGuessCorrectly,
-      };
-      setMessages((prev) => [...prev, guessMessage]);
-
-      if (shouldGuessCorrectly) {
-        handleRoundEnd(true);
+      if (!response.ok) {
+        throw new Error('Failed to submit clue');
       }
-    }, 1200);
-  };
 
-  // Helper function to generate a random incorrect guess
-  const generateRandomGuess = () => {
-    const guesses = [
-      'Computer', 'Mountain', 'Ocean', 'Building', 'Vehicle',
-      'Animal', 'Planet', 'Book', 'Music', 'Science'
-    ];
-    return guesses[Math.floor(Math.random() * guesses.length)];
-  };
+      // Create a placeholder message for AI's response
+      const aiMessageId = (Date.now() + 1).toString();
+      let aiResponseText = '';
 
-  const handleRoundEnd = (aiGuessed: boolean) => {
-    setIsRoundActive(false);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: aiMessageId,
+          type: 'guess',
+          text: '...',
+          isCorrect: false,
+        },
+      ]);
 
-    const timeElapsed = Math.floor((Date.now() - roundStartTime) / 1000);
-    console.log(`Round ended. Time elapsed: ${timeElapsed}s, AI guessed: ${aiGuessed}`);
+      // Stream the AI response
+      const reader = response.body!.getReader();
+      const decoder = new TextDecoder();
 
-    if (aiGuessed) {
-      console.log(`${gameData.character} guessed "${currentWord}"! No point this round.`);
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data:')) {
+            try {
+              const eventData = JSON.parse(line.substring(5));
+
+              // Append the new chunk to our accumulated message
+              if (eventData.chunk) {
+                aiResponseText += eventData.chunk;
+                
+                // Update the bot message with the accumulated content
+                setMessages((prev) =>
+                  prev.map((msg) =>
+                    msg.id === aiMessageId
+                      ? { ...msg, text: aiResponseText }
+                      : msg
+                  )
+                );
+              }
+
+              // If this is the last chunk, check if AI guessed correctly
+              if (eventData.done) {
+                // Fetch updated conversation to check score
+                const convResponse = await fetch(`http://localhost:8000/api/conversations/${gameSessionId}/`, {
+                  headers: {
+                    'Authorization': `Token ${authContext.token}`
+                  }
+                });
+
+                if (convResponse.ok) {
+                  const convData = await convResponse.json();
+                  const newScore = convData.score || 0;
+                  const isCorrect = newScore > previousScore;
+
+                  console.log('Score check:', { previousScore, newScore, isCorrect, currentWord, newWord: convData.current_word });
+
+                  // Update the message with correctness
+                  setMessages((prev) =>
+                    prev.map((msg) =>
+                      msg.id === aiMessageId
+                        ? { ...msg, isCorrect }
+                        : msg
+                    )
+                  );
+
+                  // Update score and word if AI guessed correctly
+                  if (isCorrect) {
+                    // Store the word that was just guessed before updating to the new word
+                    const guessedWord = currentWord;
+                    
+                    setCurrentScore(newScore);
+                    setCurrentWord(convData.current_word);
+                    
+                    // Pass the guessed word to handleRoundEnd
+                    handleRoundEnd(true, guessedWord);
+                  }
+                }
+              }
+            } catch (e) {
+              console.error('Error parsing event data:', e);
+            }
+          }
+        }
+      }
+      
+      setIsStreaming(false);
+    } catch (error) {
+      console.error('Failed to submit clue:', error);
+      setIsStreaming(false);
       setMessages((prev) => [
         ...prev,
         {
           id: Date.now().toString(),
           type: 'system',
-          text: `${gameData.character} guessed correctly! The word was "${currentWord}".`,
+          text: '❌ Error communicating with AI. Please try again.',
+        },
+      ]);
+    }
+  };
+
+  const handleRoundEnd = (aiGuessed: boolean, wordToShow?: string) => {
+    setIsRoundActive(false);
+
+    // Use the provided word or fall back to currentWord
+    const displayWord = wordToShow || currentWord;
+
+    const timeElapsed = Math.floor((Date.now() - roundStartTime) / 1000);
+    console.log(`Round ended. Time elapsed: ${timeElapsed}s, AI guessed: ${aiGuessed}, Word: ${displayWord}, Session: ${gameSessionId}`);
+
+    if (aiGuessed) {
+      console.log(`${gameData.character} guessed "${displayWord}"! AI wins this round.`);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now().toString(),
+          type: 'system',
+          text: `${gameData.character} guessed correctly! The word was "${displayWord}".`,
         },
       ]);
     } else {
-      const newScore = gameData.score + 1;
-      setGameData({ ...gameData, score: newScore });
-      console.log(`Time's up! You scored a point! The word was "${currentWord}".`);
+      console.log(`Time's up! AI didn't guess in time. The word was "${displayWord}".`);
       setMessages((prev) => [
         ...prev,
         {
           id: Date.now().toString(),
           type: 'system',
-          text: `Time's up! You scored a point! The word was "${currentWord}".`,
+          text: `Time's up! The word was "${displayWord}". AI didn't guess in time!`,
         },
       ]);
     }
@@ -197,7 +404,7 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
   const handleNextRound = () => {
     if (gameData.round >= gameData.totalRounds) {
       // Complete the game
-      console.log('Game completed!', { gameSessionId, finalScore: gameData.score });
+      console.log('Game completed!', { gameSessionId, finalScore: currentScore });
       onEndGame();
     } else {
       setGameData({ ...gameData, round: gameData.round + 1 });
@@ -205,6 +412,29 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
   };
 
   const timePercentage = (timeLeft / 60) * 100;
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-200 flex items-center justify-center">
+        <div className="text-center max-w-md p-6">
+          <div className="inline-block p-4 bg-red-100 dark:bg-red-900/30 rounded-full mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-12 h-12 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Connection Error</h2>
+          <p className="text-gray-700 dark:text-gray-300 mb-6">{error}</p>
+          <button
+            onClick={onBack}
+            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-white font-semibold rounded-lg transition-colors duration-200"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // Show loading state while fetching word
   if (isLoading) {
@@ -241,7 +471,7 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                 </svg>
-                {gameData.score}
+                {currentScore}
               </div>
               <div className="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-full text-sm font-medium">
                 Round {gameData.round}/{gameData.totalRounds}

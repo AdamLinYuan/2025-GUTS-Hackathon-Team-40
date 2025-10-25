@@ -1,5 +1,4 @@
 from django.urls import path, include
-from django.views.generic import TemplateView
 from rest_framework.authtoken.views import obtain_auth_token
 from . import views
 
@@ -21,8 +20,4 @@ urlpatterns = [
     # Conversation management - all protected
     path('conversations/', views.conversation_list, name='conversation_list'),
     path('conversations/<int:conversation_id>/', views.conversation_detail, name='conversation_detail'),
-    
-    # Static file serving
-    path('', TemplateView.as_view(template_name='index.html')),
-    path('<path:path>', TemplateView.as_view(template_name='index.html')),
 ]
