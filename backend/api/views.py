@@ -378,3 +378,17 @@ def edit_message(request, message_id):
     
     except Exception as e:
         return Response({"error": f"Error editing message: {str(e)}"}, status=500)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def topic_list(request):
+    """Get a list of all conversations for the current user"""
+    topic_list = Topic.objects.filter(user=request.user).order_by('-updated_at')
+    return [name for topic.topic_name in topics]
+
+
+
+# @api_view(['PUT'])
+# @permission_classes([AllowAny])
+# def file_upload(filename):
+#     filepath = pathlib.Path(filename)
