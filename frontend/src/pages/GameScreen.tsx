@@ -43,6 +43,7 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string>('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const isProcessingRoundEnd = useRef(false);
 
   // Initialize game session on first mount
   useEffect(() => {
@@ -427,6 +428,13 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
   };
 
   const handleRoundEnd = async (aiGuessed: boolean, wordToShow?: string, isTimeout: boolean = false) => {
+    // Prevent duplicate calls
+    if (isProcessingRoundEnd.current) {
+      console.log('Already processing round end, skipping duplicate call');
+      return;
+    }
+    
+    isProcessingRoundEnd.current = true;
     setIsRoundActive(false);
 
     // Use the provided word or fall back to currentWord
@@ -476,7 +484,7 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
           });
 
           if (response.ok) {
-            // Read the stream
+            // Read the stream but don't display bot's response (we already showed our timeout message)
             const reader = response.body!.getReader();
             const decoder = new TextDecoder();
             
@@ -491,6 +499,7 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
                 if (line.startsWith('data:')) {
                   try {
                     const eventData = JSON.parse(line.substring(5));
+                    // Don't add the bot's response to messages - we already showed timeout message
                     if (eventData.done) {
                       // Fetch updated conversation to get new word
                       const convResponse = await fetch(`http://localhost:8000/api/conversations/${gameSessionId}/`, {
@@ -520,9 +529,15 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
       }
       // If not timeout (out of guesses), backend already handled word change, no need to do anything
     }
+    
+    // Reset the processing flag after all async operations complete
+    isProcessingRoundEnd.current = false;
   };
 
   const handleNextRound = () => {
+    // Reset the flag when moving to next round
+    isProcessingRoundEnd.current = false;
+    
     if (gameData.round >= gameData.totalRounds) {
       // Complete the game - update gameData with final score from backend
       setGameData({ ...gameData, score: currentScore });
