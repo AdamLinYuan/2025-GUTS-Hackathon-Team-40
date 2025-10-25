@@ -31,7 +31,7 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
   const [gameSessionId, setGameSessionId] = useState<string>('');
   const [currentWord, setCurrentWord] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
-  const [timeLeft, setTimeLeft] = useState(60);
+  const [timeLeft, setTimeLeft] = useState(30);
   const [isRoundActive, setIsRoundActive] = useState(true);
   const [cluesGiven, setCluesGiven] = useState<string[]>([]);
   const [inputText, setInputText] = useState('');
@@ -190,7 +190,7 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
             text: `Round ${gameData.round} of ${gameData.totalRounds} - Give clues to describe the word!`,
           },
         ]);
-        setTimeLeft(60);
+        setTimeLeft(30);
         setIsRoundActive(true);
         setCluesGiven([]);
         setRoundStartTime(Date.now());
@@ -516,7 +516,7 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
     }
   };
 
-  const timePercentage = (timeLeft / 60) * 100;
+  const timePercentage = (timeLeft / 30) * 100;
 
   // Show error state
   if (error) {
