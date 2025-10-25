@@ -468,17 +468,12 @@ def user_details(request):
         print(f"Error in conversation_detail: {str(e)}")
         return Response({"error": str(e)}, status=500)
 
-# @api_view(['PUT'])
-# @permission_classes([AllowAny])
-# def file_upload(filename):
-#     filepath = pathlib.Path(filename)
-
-
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def upload_terms(request):
     try:
         upload = request.FILES.get('file')
+        topic_name = request.POST.get('topic_name') or request.query_params.get('topic_name')
         if not upload:
             return Response({"error": "Missing file"}, status=400)
 
@@ -493,10 +488,28 @@ def upload_terms(request):
 
         pdf_bytes = upload.read()
         terms = extract_terms_from_pdf(pdf_bytes, max_terms=max_terms)
-        return Response({"terms": terms})
+        if topic_name:
+            topic_name = topic_name.strip()
+            # Use authenticated user if available, else leave user null
+            user = request.user if request.user.is_authenticated else None
+            topic, created = Topic.objects.get_or_create(
+                user=user,
+                topic_name=topic_name,
+                defaults={'related_words': terms}
+            )
+            if not created:
+                # Update related_words if topic already exists
+                topic.related_words = terms
+                topic.save()
+
+        all_topics = Topic.objects.all().order_by('topic_name').values_list('topic_name', flat=True)
+        print("All topic names:", list(all_topics))
+
+        return Response({"terms": terms, "topic_name": topic_name})
     except Exception as e:
         print(f"upload_terms error: {e}")
         return Response({"error": "Failed to extract terms"}, status=500)
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

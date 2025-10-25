@@ -59,7 +59,7 @@ def extract_terms_from_pdf(pdf_bytes: bytes, max_terms: int = 150) -> list:
     prompt = (
                 "Read and analyze the uploaded PDF. "
                 "Respond ONLY with a JSON array of the most important terms, "
-                "including names, organizations, and domain-specific terminology when possible. "
+                "including names and organizations if and only if they are relevant, and terminology that is relevant to the overall context. Focus on what concepts could be examined and are the most important"
                 f"Return ONLY strict JSON with the following schema: {{\n  \"terms\": [\"term1\", \"term2\", ...]\n}}. "
                 f"Return at most {max_terms} items. No commentary, no markdown fences."
             )
