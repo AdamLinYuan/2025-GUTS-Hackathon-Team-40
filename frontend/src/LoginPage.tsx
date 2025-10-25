@@ -46,9 +46,9 @@ const LoginPage = () => {
       
       const userData = await userResponse.json();
       
-      // Login successful
+      // Login successful - redirect to dashboard
       login(data.token, userData);
-      navigate('/');
+      navigate('/dashboard');
     } catch (err: any) {
       setError(err.message);
     } finally {

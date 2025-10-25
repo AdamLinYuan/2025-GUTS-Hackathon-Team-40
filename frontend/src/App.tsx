@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomePage from './HomePage';
+import DashboardPage from './DashboardPage';
 import ChatPage from './ChatPage';
 import Layout from './Layout';
 import FeaturesPage from './FeaturesPage';
@@ -26,6 +27,7 @@ const App = () => {
           
           {/* Protected routes */}
           <Route element={<PrivateRoute />}>
+            <Route path="/dashboard" element={<Layout><DashboardPage /></Layout>} />
             <Route path="/chat" element={<Layout hideHeader={true}><ChatPage /></Layout>} />
           </Route>
         </Routes>

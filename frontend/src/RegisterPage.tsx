@@ -129,8 +129,8 @@ const RegisterPage = () => {
         email: data.email
       });
       
-      // Redirect to home page
-      navigate('/');
+      // Redirect to dashboard after registration
+      navigate('/dashboard');
       
     } catch (err: any) {
       console.error('Registration error:', err);
