@@ -15,6 +15,8 @@ This is a full-stack AI chatbot application that uses Google's Gemini API for na
 
 #### 1. Backend Setup
 
+**Option A: Using Virtual Environment (venv)**
+
 ```bash
 cd backend
 
@@ -36,7 +38,34 @@ python manage.py migrate
 python manage.py runserver
 ```
 
+**Option B: Using Anaconda/Conda (Recommended)**
+
+```bash
+cd backend
+
+# Create conda environment from file
+conda env create -f environment.yml
+
+# Activate the environment
+conda activate hackathon-env
+
+# Install Python dependencies
+pip install -r requirements.txt
+
+# Set up environment variables
+cp .env.example .env
+# Edit .env and add your GEMINI_API_KEY
+
+# Run migrations
+python manage.py migrate
+
+# Start the backend server
+python manage.py runserver
+```
+
 The backend will run at `http://localhost:8000`
+
+> **Note:** If you're using Anaconda, the `environment.yml` file specifies Python 3.11. You can also create the environment manually with: `conda create -n hackathon-env python=3.11`
 
 #### 2. Frontend Setup
 
@@ -63,16 +92,6 @@ DEBUG=True
 ```
 
 **Important:** Never commit your `.env` file! It's already in `.gitignore`.
-
-## 📚 Features
-
-- ✨ Real-time streaming chat responses
-- 🔐 User authentication and authorization
-- 💬 Conversation history management
-- 🌓 Dark mode support
-- 📱 Responsive design
-- 🎯 Demo mode for testing without login
-- ✏️ Message editing with context preservation
 
 ## 🏗️ Tech Stack
 
