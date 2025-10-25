@@ -20,4 +20,5 @@ urlpatterns = [
     # Conversation management - all protected
     path('conversations/', views.conversation_list, name='conversation_list'),
     path('conversations/<int:conversation_id>/', views.conversation_detail, name='conversation_detail'),
+    path('conversations/<int:conversation_id>/reset-round/', views.reset_round, name='reset_round'),
 ]

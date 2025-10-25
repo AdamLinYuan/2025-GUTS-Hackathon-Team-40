@@ -38,6 +38,7 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
   const [isLoading, setIsLoading] = useState(false);
   const [roundStartTime, setRoundStartTime] = useState<number>(Date.now());
   const [currentScore, setCurrentScore] = useState(0);
+  const [guessesRemaining, setGuessesRemaining] = useState<number>(0);
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string>('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -116,12 +117,14 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
         setGameSessionId(conversationId);
         setCurrentWord(convData.current_word);
         setCurrentScore(convData.score || 0);
+        setGuessesRemaining(convData.guesses_remaining || 0);
         
         console.log('Game session started:', {
           conversationId,
           currentWord: convData.current_word,
           score: convData.score,
-          numRounds: convData.num_rounds
+          numRounds: convData.num_rounds,
+          guessesRemaining: convData.guesses_remaining
         });
         
       } catch (error) {
@@ -143,6 +146,16 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
       setIsLoading(true);
       
       try {
+        // Reset guesses for new round (skip on first round as it's already set to 3)
+        if (gameData.round > 1) {
+          await fetch(`http://localhost:8000/api/conversations/${gameSessionId}/reset-round/`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Token ${authContext.token}`
+            }
+          });
+        }
+
         // Fetch current word from backend
         const response = await fetch(`http://localhost:8000/api/conversations/${gameSessionId}/`, {
           headers: {
@@ -157,12 +170,14 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
         const convData = await response.json();
         setCurrentWord(convData.current_word);
         setCurrentScore(convData.score || 0);
+        setGuessesRemaining(convData.guesses_remaining || 0);
         
         console.log(`Round ${gameData.round} initialized:`, {
           conversationId: gameSessionId,
           currentWord: convData.current_word,
           score: convData.score,
-          numRounds: convData.num_rounds
+          numRounds: convData.num_rounds,
+          guessesRemaining: convData.guesses_remaining
         });
         
         setMessages([
@@ -212,7 +227,7 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
   const handleSubmitClue = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!inputText.trim() || !isRoundActive) return;
+    if (!inputText.trim() || !isRoundActive || guessesRemaining <= 0) return;
 
     const clue = inputText.trim();
     setInputText(''); // Clear input after submission
@@ -322,8 +337,18 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
                   const convData = await convResponse.json();
                   const newScore = convData.score || 0;
                   const isCorrect = newScore > previousScore;
+                  
+                  // Update guesses remaining from backend
+                  setGuessesRemaining(convData.guesses_remaining || 0);
 
-                  console.log('Score check:', { previousScore, newScore, isCorrect, currentWord, newWord: convData.current_word });
+                  console.log('Score check:', { 
+                    previousScore, 
+                    newScore, 
+                    isCorrect, 
+                    currentWord, 
+                    newWord: convData.current_word,
+                    guessesRemaining: convData.guesses_remaining 
+                  });
 
                   // Update the message with correctness
                   setMessages((prev) =>
@@ -344,6 +369,9 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
                     
                     // Pass the guessed word to handleRoundEnd
                     handleRoundEnd(true, guessedWord);
+                  } else if (convData.guesses_remaining <= 0) {
+                    // Out of guesses - end the round
+                    handleRoundEnd(false);
                   }
                 }
               }
@@ -472,7 +500,13 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
                 </svg>
-                {currentScore}
+                Score: {currentScore}
+              </div>
+              <div className="inline-flex items-center px-4 py-2 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300 rounded-full text-sm font-medium">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Guesses: {guessesRemaining}
               </div>
               <div className="inline-flex items-center px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white rounded-full text-sm font-medium">
                 Round {gameData.round}/{gameData.totalRounds}
@@ -557,14 +591,14 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
                   type="text"
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
-                  placeholder="Type your clue here..."
-                  disabled={!isRoundActive}
+                  placeholder={guessesRemaining <= 0 ? "No guesses remaining!" : "Type your clue here..."}
+                  disabled={!isRoundActive || guessesRemaining <= 0}
                   className="flex-1 px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
                 />
                 
                 <button
                   type="submit"
-                  disabled={!isRoundActive || !inputText.trim()}
+                  disabled={!isRoundActive || !inputText.trim() || guessesRemaining <= 0}
                   className="px-6 py-3 bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-white font-semibold rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -575,7 +609,10 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
               </div>
 
               <p className="text-gray-400 dark:text-gray-500 text-center text-xs">
-                Don't use the target word in your clue!
+                {guessesRemaining <= 0 
+                  ? "⚠️ Out of guesses for this round!" 
+                  : "Don't use the target word in your clue!"
+                }
               </p>
             </form>
           </div>

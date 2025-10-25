@@ -1,8 +1,10 @@
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const SubcategoriesPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const authContext = useAuth();
   const category = searchParams.get('category') || '';
 
   const categoryData: Record<string, { name: string; icon: string; color: string; subcategories: string[] }> = {
@@ -100,6 +102,34 @@ const SubcategoriesPage = () => {
 
   const colors = colorClasses[currentCategory.color];
 
+  const handleSubcategoryClick = async (subcategory: string) => {
+    // Convert subcategory to lowercase with underscores replacing spaces
+    const topicName = subcategory.toLowerCase().replace(/ /g, '_');
+    
+    try {
+      // POST to backend with topic_name
+      const response = await fetch('http://localhost:8000/api/set-topic/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Token ${authContext.token}`
+        },
+        body: JSON.stringify({
+          topic_name: topicName
+        })
+      });
+
+      if (!response.ok) {
+        console.error('Failed to set topic:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error setting topic:', error);
+    }
+
+    // Navigate to game regardless of API response
+    navigate(`/game?category=${category}&subcategory=${encodeURIComponent(subcategory)}`);
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-200">
       <main className="container mx-auto p-4 py-8">
@@ -133,15 +163,15 @@ const SubcategoriesPage = () => {
         {/* Subcategories Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {currentCategory.subcategories.map((subcategory) => (
-            <Link
+            <button
               key={subcategory}
-              to={`/game?category=${category}&subcategory=${encodeURIComponent(subcategory)}`}
+              onClick={() => handleSubcategoryClick(subcategory)}
               className={`p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md ${colors.hover} transition-all duration-200 hover:shadow-lg hover:scale-105 transform border-2 ${colors.border}`}
             >
               <h3 className={`text-lg font-semibold text-center ${colors.text}`}>
                 {subcategory}
               </h3>
-            </Link>
+            </button>
           ))}
         </div>
 

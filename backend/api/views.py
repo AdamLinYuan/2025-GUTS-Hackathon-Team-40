@@ -131,12 +131,18 @@ def chat_stream(request):
                     )
                     print(f"Saved bot message with ID: {self.bot_message.id}, length: {len(self.text)}")
                     
+                    # Decrement guesses_remaining for each clue submitted
+                    conversation.guesses_remaining -= 1
+                    
                     # Check if AI guessed the word OR if user used the backdoor "ORAN"
                     if (conversation.current_word in self.text or "ORAN" in user_prompt):
                         conversation.score += 1
-                        conversation.num_rounds -=1
+                        conversation.num_rounds -= 1
                         conversation.current_word = get_word("historical_figures") # Hardcoded for testing purposes
-                        conversation.save()
+                        conversation.guesses_remaining = 3  # Reset to 3 guesses for new word
+                    
+                    conversation.save()
+                        
                     # Log the prompt and response
                     processing_time = time.time() - start_time
                     PromptLog.objects.create(
@@ -392,6 +398,23 @@ def edit_message(request, message_id):
     
     except Exception as e:
         return Response({"error": f"Error editing message: {str(e)}"}, status=500)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def reset_round(request, conversation_id):
+    """Reset guesses_remaining for a new round"""
+    try:
+        conversation = get_object_or_404(Conversation, id=conversation_id, user=request.user)
+        conversation.guesses_remaining = 3
+        conversation.save()
+        
+        return Response({
+            "success": True,
+            "guesses_remaining": conversation.guesses_remaining,
+            "message": "Round reset successfully"
+        })
+    except Exception as e:
+        return Response({"error": f"Error resetting round: {str(e)}"}, status=500)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
