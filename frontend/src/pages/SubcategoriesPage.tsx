@@ -108,7 +108,7 @@ const SubcategoriesPage = () => {
     
     try {
       // POST to backend with topic_name
-      const response = await fetch('http://localhost:8000/api/set-topic/', {
+      const response = await fetch('http://localhost:8000/api/chat-stream/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
