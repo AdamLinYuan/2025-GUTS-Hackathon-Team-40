@@ -399,6 +399,23 @@ def edit_message(request, message_id):
     except Exception as e:
         return Response({"error": f"Error editing message: {str(e)}"}, status=500)
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def reset_round(request, conversation_id):
+    """Reset guesses_remaining for a new round"""
+    try:
+        conversation = get_object_or_404(Conversation, id=conversation_id, user=request.user)
+        conversation.guesses_remaining = 3
+        conversation.save()
+        
+        return Response({
+            "success": True,
+            "guesses_remaining": conversation.guesses_remaining,
+            "message": "Round reset successfully"
+        })
+    except Exception as e:
+        return Response({"error": f"Error resetting round: {str(e)}"}, status=500)
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def topic_list(request):
