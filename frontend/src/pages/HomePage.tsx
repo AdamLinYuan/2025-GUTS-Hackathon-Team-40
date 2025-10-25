@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import './index.css';
-import { useAuth } from './AuthContext'; // Import the auth context
+import '../index.css';
+import { useAuth } from '../context/AuthContext'; // Import the auth context
 
 const HomePage = () => {
   const { isAuthenticated } = useAuth(); // Use the auth context

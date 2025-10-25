@@ -1,7 +1,7 @@
-import './index.css';
+import '../index.css';
 import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useTheme } from './Layout'; 
+import { useTheme } from '../components/Layout'; 
 
 const FeaturesPage = () => {
   const { isDarkMode } = useTheme();
