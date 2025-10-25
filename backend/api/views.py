@@ -59,10 +59,11 @@ def chat_stream(request, topic_name):
 
                 title = f"TOPIC: {topic}"
             
-            DEFAULT_TOPIC = "ancient_history"
-            print(topic_list(request._request))
-            if not topic_name in topic_list(request._request):
-                topic_name = DEFAULT_TOPIC
+            # Use the topic_name from URL parameter or default
+            if not topic_name:
+                topic_name = "ancient_history"
+            
+            print(f"Using topic: {topic_name}")
                 
             # Create the conversation with error checking
             try:
@@ -139,14 +140,17 @@ def chat_stream(request, topic_name):
                     # Check if AI guessed the word OR if user used the backdoor "ORAN"
                     if (conversation.current_word in self.text or "ORAN" in user_prompt):
                         conversation.score += 1
-                        conversation.num_rounds -=1
-                        conversation.current_word = get_word("historical_figures")
+                        conversation.num_rounds -= 1
+                        conversation.current_word = get_word(topic_name)  # Use the same topic
                         conversation.guesses_remaining = 3
                         conversation.save()
                     else:
                         conversation.guesses_remaining -= 1
                         if conversation.guesses_remaining == 0:
-                            return Response({"Reason": "You've run out of guesses"}, status=200)
+                            # Out of guesses - get new word from same topic
+                            conversation.current_word = get_word(topic_name)
+                            conversation.guesses_remaining = 3
+                            conversation.save()
                         
                     # Log the prompt and response
                     processing_time = time.time() - start_time
@@ -414,11 +418,34 @@ def topic_list(request):
 def get_word(topic):
     base_dir = os.path.join(os.path.dirname(__file__), 'topics')
     filepath = os.path.join(base_dir, f"{topic}.txt")
-    with open(filepath, "r") as f:
-        words = [line.strip() for line in f]
-    word = random.choice(words)
-    print(word)
-    return word
+    
+    # Check if the topic file exists, if not default to ancient_history
+    if not os.path.exists(filepath):
+        print(f"Topic file '{topic}.txt' not found, defaulting to ancient_history")
+        topic = "ancient_history"
+        filepath = os.path.join(base_dir, f"{topic}.txt")
+    
+    try:
+        with open(filepath, "r") as f:
+            words = [line.strip() for line in f if line.strip()]  # Filter out empty lines
+        
+        if not words:
+            print(f"Topic file '{topic}.txt' is empty, defaulting to ancient_history")
+            filepath = os.path.join(base_dir, "ancient_history.txt")
+            with open(filepath, "r") as f:
+                words = [line.strip() for line in f if line.strip()]
+        
+        word = random.choice(words)
+        print(f"Selected word: {word} from topic: {topic}")
+        return word
+    except Exception as e:
+        print(f"Error reading topic file: {str(e)}, defaulting to ancient_history")
+        filepath = os.path.join(base_dir, "ancient_history.txt")
+        with open(filepath, "r") as f:
+            words = [line.strip() for line in f if line.strip()]
+        word = random.choice(words)
+        print(f"Selected word: {word} from default topic: ancient_history")
+        return word
 
 
 # @api_view(['PUT'])

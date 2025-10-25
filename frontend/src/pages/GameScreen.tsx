@@ -49,9 +49,11 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
         setIsLoading(true);
         setError('');
         
-        const topic_name = "nba_players"; 
+        // Convert subcategory to topic_name format (lowercase with underscores)
+        const topicName = gameData.subcategory.toLowerCase().replace(/ /g, '_');
+        
         // Start a new conversation (game session) via the chat-stream endpoint
-        const response = await fetch('http://localhost:8000/api/chat-stream/<topic_name>/', {
+        const response = await fetch(`http://localhost:8000/api/chat-stream/${topicName}/`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -249,8 +251,11 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
     try {
       setIsStreaming(true);
       
+      // Convert subcategory to topic_name format (lowercase with underscores)
+      const topicName = gameData.subcategory.toLowerCase().replace(/ /g, '_');
+      
       // Submit clue via the chat-stream endpoint
-      const response = await fetch('http://localhost:8000/api/chat-stream/', {
+      const response = await fetch(`http://localhost:8000/api/chat-stream/${topicName}/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
