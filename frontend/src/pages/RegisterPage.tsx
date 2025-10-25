@@ -22,7 +22,7 @@ const RegisterPage = () => {
   // Redirect if already logged in
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/chat');
+      navigate('/dashboard');
     }
   }, [isAuthenticated, navigate]);
   
