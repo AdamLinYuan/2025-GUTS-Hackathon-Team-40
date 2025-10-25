@@ -5,9 +5,6 @@ import ChatPage from './pages/ChatPage';
 import SubcategoriesPage from './pages/SubcategoriesPage';
 import GamePage from './pages/GamePage';
 import Layout from './components/Layout';
-import FeaturesPage from './pages/FeaturesPage';
-import AboutPage from './pages/AboutPage';
-import ContactPage from './pages/ContactPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import PrivateRoute from './components/PrivateRoute';
@@ -20,9 +17,6 @@ const App = () => {
         <Routes>
           {/* Public routes */}
           <Route path="/" element={<Layout><HomePage /></Layout>} />
-          <Route path="/features" element={<Layout><FeaturesPage /></Layout>} />
-          <Route path="/about" element={<Layout><AboutPage /></Layout>} />
-          <Route path="/contact" element={<Layout><ContactPage /></Layout>} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           
