@@ -10,6 +10,7 @@ const UploadWordListPage: React.FC = () => {
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [maxTerms, setMaxTerms] = useState(30);
+  const [topicName, setTopicName] = useState('');
   const navigate = useNavigate();
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,13 +36,18 @@ const UploadWordListPage: React.FC = () => {
     e.preventDefault();
     setError('');
     setTerms([]);
+    if (!topicName.trim()) {
+      setError('Please enter a topic name.');
+      return;
+    }
     if (!file) {
       setError('Please select a PDF file to upload.');
       return;
     }
     try {
       setLoading(true);
-      const result = await uploadTerms(file, maxTerms);
+      // Pass topicName along with file and maxTerms if your API supports it
+      const result = await uploadTerms(file, maxTerms, topicName);
       setTerms(result);
     } catch (err: any) {
       setError(err?.message || 'Failed to extract terms.');
@@ -65,10 +71,21 @@ const UploadWordListPage: React.FC = () => {
 
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Upload Word List</h1>
         <p className="text-gray-600 dark:text-gray-300 mb-6">
-          Upload a PDF (syllabus, paper, book chapter) and we\'ll extract the most important terms for a custom game.
+          Upload a PDF (syllabus, paper, book chapter) and we'll extract the most important terms for a custom game.
         </p>
 
         <form onSubmit={onSubmit} className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 border dark:border-gray-700">
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-2">Topic Name</label>
+            <input
+              type="text"
+              value={topicName}
+              onChange={(e) => setTopicName(e.target.value)}
+              placeholder="Enter a name for your topic"
+              className="w-full rounded border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 p-2 text-gray-900 dark:text-gray-100"
+            />
+          </div>
+
           <div className="mb-4">
             <label className="block text-sm font-medium mb-2">PDF file</label>
             <input
@@ -109,7 +126,7 @@ const UploadWordListPage: React.FC = () => {
 
         {terms.length > 0 && (
           <div className="mt-8 bg-white dark:bg-gray-800 rounded-lg shadow p-6 border dark:border-gray-700">
-            <h2 className="text-xl font-bold mb-3">Extracted Terms ({terms.length})</h2>
+            <h2 className="text-xl font-bold mb-3">{topicName} - Extracted Terms ({terms.length})</h2>
             <ul className="list-disc pl-6 space-y-1">
               {terms.map((t, i) => (
                 <li key={i} className="text-gray-800 dark:text-gray-200">{t}</li>

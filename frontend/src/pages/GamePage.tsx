@@ -42,8 +42,16 @@ const GamePage = () => {
   };
 
   const handleRestart = () => {
-    // Go back to dashboard to choose new category/subcategory
-    navigate('/dashboard');
+    // Reset game data to initial state and restart the game
+    setGameData({
+      category: initialCategory,
+      subcategory: initialSubcategory,
+      character: 'Gemini AI',
+      round: 1,
+      totalRounds: 5,
+      score: 0,
+    });
+    setGameState('playing');
   };
 
   const handleBackFromGame = () => {
