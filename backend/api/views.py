@@ -581,6 +581,26 @@ def random_avatar_subject(request, topic_name: str):
     except Exception as e:
         return Response({"error": f"Failed to select subject: {e}"}, status=500)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def random_famous_icon(request):
+    """Return a random famous icon name from topics/famous_icons.txt.
+    Used by the frontend to pick a consistent AI persona across categories.
+    """
+    try:
+        base_dir = os.path.join(os.path.dirname(__file__), 'topics')
+        filepath = os.path.join(base_dir, 'famous_icons.txt')
+        if not os.path.isfile(filepath):
+            return Response({"error": "famous_icons.txt not found"}, status=404)
+        with open(filepath, 'r') as f:
+            items = [line.strip() for line in f if line.strip()]
+        if not items:
+            return Response({"error": "No icons listed"}, status=400)
+        icon = random.choice(items)
+        return Response({"icon": icon})
+    except Exception as e:
+        return Response({"error": f"Failed to select icon: {e}"}, status=500)
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def set_topic(request):

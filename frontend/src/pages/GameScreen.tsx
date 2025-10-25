@@ -54,15 +54,16 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
         // Convert subcategory to topic_name format (lowercase with underscores)
         const topicName = gameData.subcategory.toLowerCase().replace(/ /g, '_');
 
-        // Fetch a random subject from backend to use as the AI character avatar/label
+        // Fetch a global famous icon to use as the AI character persona
         try {
-          const subjectRes = await fetch(`http://localhost:8000/api/topics/${topicName}/random-subject/`, {
+          const iconRes = await fetch(`http://localhost:8000/api/icons/random/`, {
             headers: { 'Authorization': `Token ${authContext.token}` }
           });
-          if (subjectRes.ok) {
-            const { subject } = await subjectRes.json();
-            if (subject && typeof subject === 'string') {
-              setGameData({ ...gameData, character: subject });
+          if (iconRes.ok) {
+            const data = await iconRes.json();
+            const persona = (data && (data.name || data.icon || data.persona)) as string | undefined;
+            if (persona && typeof persona === 'string') {
+              setGameData({ ...gameData, character: persona });
             }
           }
         } catch (_e) {
@@ -646,7 +647,7 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12">
-                <AvatarSprite name={gameData.character} size={48} />
+                <AvatarSprite name={gameData.character} size={48} theme={'famous_figures'} />
               </div>
               <div>
                 <h3 className="text-gray-900 dark:text-white font-semibold">{gameData.character}</h3>
@@ -660,7 +661,7 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
         <div className="p-4 mb-6 h-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
           <div className="h-full overflow-y-auto space-y-3">
             {messages.map((message) => (
-              <ChatMessage key={message.id} message={message} />
+              <ChatMessage key={message.id} message={message} theme={undefined} aiName={gameData.character} />
             ))}
             <div ref={messagesEndRef} />
           </div>
