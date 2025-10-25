@@ -5,6 +5,7 @@ import ChatPage from './pages/ChatPage';
 import SubcategoriesPage from './pages/SubcategoriesPage';
 import GamePage from './pages/GamePage';
 import UploadWordListPage from './pages/UploadWordListPage';
+import SpriteDemo from './pages/SpriteDemo';
 import Layout from './components/Layout';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -17,6 +18,7 @@ const App = () => {
       <Router>
         <Routes>
           <Route path="/" element={<Layout><HomePage /></Layout>} />
+          <Route path="/sprite-demo" element={<Layout><SpriteDemo /></Layout>} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route element={<PrivateRoute />}>

@@ -8,9 +8,11 @@ interface Message {
 
 interface ChatMessageProps {
   message: Message;
+  theme?: string;
+  aiName?: string; // consistent AI persona name for avatar rendering
 }
 
-export function ChatMessage({ message }: ChatMessageProps) {
+export function ChatMessage({ message, theme, aiName }: ChatMessageProps) {
   if (message.type === 'system') {
     return (
       <div className="flex items-center justify-center gap-2 p-3 bg-gray-200 dark:bg-gray-700/50 rounded-lg">
@@ -49,7 +51,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
     return (
       <div className="flex items-start gap-3">
         <div className="flex-shrink-0" style={{ width: 32, height: 32 }}>
-          <AvatarSprite name={message.text} size={32} />
+          <AvatarSprite name={aiName || 'AI'} size={32} theme={theme} />
         </div>
         <div className="max-w-[70%] space-y-1">
           <div className="flex items-center gap-2">
