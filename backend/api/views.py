@@ -166,11 +166,16 @@ def chat_stream(request, topic_name):
                     if (conversation.current_word in self.text or "ORAN" in user_prompt):
                         conversation.score += 1
                         conversation.num_rounds -= 1
-                        conversation.current_word = get_word("historical_figures")
+                        conversation.current_word = get_word(topic_name)
                         conversation.guesses_remaining = 3
-                        conversation.current_word = get_word("ancient_history") # Hardcoded for testing purposes
+
                         conversation.guesses_remaining = 3  # Reset to 3 guesses for new word
                         request.user.userProfile.rounds_won += 1
+                        request.user.userProfile.rounds_played += 1
+                        request.user.userProfile.save()
+                    if (conversation.guesses_remaining == 0):
+                        conversation.num_rounds -= 1
+                        conversation.current_word = get_word(topic_name)
                         request.user.userProfile.rounds_played += 1
                         request.user.userProfile.save()
                     
