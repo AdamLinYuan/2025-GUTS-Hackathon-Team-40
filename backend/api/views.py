@@ -175,6 +175,9 @@ def chat_stream(request):
                         conversation.num_rounds -= 1
                         conversation.current_word = get_word("historical_figures") # Hardcoded for testing purposes
                         conversation.guesses_remaining = 3  # Reset to 3 guesses for new word
+                        request.user.userProfile.rounds_won += 1
+                        request.user.userProfile.rounds_played += 1
+                        request.user.userProfile.save()
                     
                     conversation.save()
                         
