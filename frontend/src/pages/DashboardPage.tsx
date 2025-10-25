@@ -1,9 +1,49 @@
 import { Link } from 'react-router-dom';
 import '../index.css';
 import { useAuth } from '../context/AuthContext';
+import { useEffect, useState } from 'react';
 
 const DashboardPage = () => {
-  const { user } = useAuth();
+  const authContext = useAuth();
+  const [userprofile, setUserProfile] = useState({ rounds_played: 0, rounds_won: 0 });
+
+  // ...existing code...
+  useEffect(() => {
+    console.log('DashboardPage useEffect start, user object:', authContext);
+
+    const fetchUserProfile = async () => {
+
+      console.log('resolved token:', authContext.token);
+
+      if (!authContext.token) {
+        console.log('No token available, skipping fetch');
+        return;
+      }
+
+      try {
+        const response = await fetch('http://localhost:8000/api/user-profile/', {
+          headers: {
+            'Authorization': `Token ${authContext.token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        console.log('fetch finished, status=', response.status, 'ok=', response.ok);
+        if (!response.ok) {
+          const text = await response.text();
+          console.error('profile fetch error body:', text);
+          return;
+        }
+        const data = await response.json();
+        console.log('Fetched user profile:', data);
+        setUserProfile(data);
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+      }
+    };
+
+    fetchUserProfile();
+  }, [authContext]); // depend on token fields, not whole object
+  // ...existing code...
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-200">
@@ -11,7 +51,7 @@ const DashboardPage = () => {
       {/* Welcome Section */}
       <section className="my-8 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md transition-colors duration-200">
         <h2 className="text-3xl font-bold mb-4 text-gray-900 dark:text-white">
-          Welcome back, {user?.username}! 👋
+          Welcome back, {authContext.user?.username}! 👋
         </h2>
         <p className="text-lg text-gray-700 dark:text-gray-300 mb-4">
           Ready to test your skills? Give clues and see if the AI can guess your word!
@@ -25,8 +65,8 @@ const DashboardPage = () => {
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md transition-colors duration-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Games Played</p>
-                <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2">-</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Rounds Played</p>
+                <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2"> {userprofile.rounds_played}</p>
               </div>
               <div className="bg-blue-100 dark:bg-blue-900 p-3 rounded-full">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -39,8 +79,8 @@ const DashboardPage = () => {
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md transition-colors duration-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Words Guessed</p>
-                <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-2">-</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Rounds Won</p>
+                <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-2">{userprofile.rounds_won}</p>
               </div>
               <div className="bg-green-100 dark:bg-green-900 p-3 rounded-full">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -55,7 +95,7 @@ const DashboardPage = () => {
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Member Since</p>
                 <p className="text-lg font-semibold text-purple-600 dark:text-purple-400 mt-2">
-                  {user?.date_joined ? new Date(user.date_joined).toLocaleDateString() : '-'}
+                  {authContext.user?.date_joined ? new Date(authContext.user.date_joined).toLocaleDateString() : '-'}
                 </p>
               </div>
               <div className="bg-purple-100 dark:bg-purple-900 p-3 rounded-full">

@@ -17,4 +17,6 @@ urlpatterns = [
     path('conversations/<int:conversation_id>/', views.conversation_detail, name='conversation_detail'),
     path('conversations/<int:conversation_id>/reset-round/', views.reset_round, name='reset_round'),
     path('topics/<str:topic_name>/random-subject/', views.random_avatar_subject, name='random_avatar_subject'),
+    path('user-details/', views.user_details, name='user_details'),
+    path('user-profile/', views.user_profile, name='user-profile'),
 ]
