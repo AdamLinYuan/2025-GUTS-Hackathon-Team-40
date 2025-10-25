@@ -109,14 +109,14 @@ const SubcategoriesPage = () => {
     }
     const topicName = subcategory.toLowerCase().replace(/ /g, '_');
     try {
-      // POST to backend with topic_name
-      const response = await fetch('http://localhost:8000/api/chat-stream/', {
+      // POST to backend with topic_name in URL
+      const response = await fetch(`http://localhost:8000/api/chat-stream/${topicName}/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Token ${authContext.token}`
         },
-        body: JSON.stringify({ topic_name: topicName })
+        body: JSON.stringify({ prompt: `Starting game with topic: ${subcategory}` })
       });
       if (!response.ok) {
         console.error('Failed to set topic:', response.statusText);

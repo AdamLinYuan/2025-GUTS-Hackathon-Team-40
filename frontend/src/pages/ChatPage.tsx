@@ -230,8 +230,11 @@ const ChatPage = () => {
       // Get the current conversation ID if any
       const conversationId = localStorage.getItem('currentConversationId');
       
+      // Use a default topic for general chat (will default to ancient_history on backend if not found)
+      const topicName = 'ancient_history';
+      
       // Create a fetch request for streaming with auth token
-      const response = await fetch('http://localhost:8000/api/chat-stream/nba_players/', {
+      const response = await fetch(`http://localhost:8000/api/chat-stream/${topicName}/`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -388,8 +391,11 @@ const ChatPage = () => {
       // Show typing indicator
       setIsTyping(true);
       
+      // Use a default topic for general chat (will default to ancient_history on backend if not found)
+      const topicName = 'ancient_history';
+      
       // Make the API request
-      const response = await fetch('http://localhost:8000/api/chat-stream/', {
+      const response = await fetch(`http://localhost:8000/api/chat-stream/${topicName}/`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
