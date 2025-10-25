@@ -54,7 +54,7 @@ def chat_stream(request):
             if len(title_preview) > 0:
                 title = f"Chat about {title_preview}..."
             else:
-                topic = "HISTORICAL FIGURES"
+                topic = "ANCIENT HISTORY"
 
                 title = f"TOPIC: {topic}"
                 
@@ -63,7 +63,7 @@ def chat_stream(request):
                 conversation = Conversation.objects.create(
                     user=request.user,
                     title=title,
-                    current_word=get_word("historical_figures"),
+                    current_word=get_word("ancient_history"),
 
                 )
                 request.user.userProfile.rounds_played += 1
@@ -173,7 +173,7 @@ def chat_stream(request):
                     if (conversation.current_word in self.text or "ORAN" in user_prompt):
                         conversation.score += 1
                         conversation.num_rounds -= 1
-                        conversation.current_word = get_word("historical_figures") # Hardcoded for testing purposes
+                        conversation.current_word = get_word("ancient_history") # Hardcoded for testing purposes
                         conversation.guesses_remaining = 3  # Reset to 3 guesses for new word
                         request.user.userProfile.rounds_won += 1
                         request.user.userProfile.rounds_played += 1
@@ -462,7 +462,7 @@ def topic_list(request):
     return [name for name in topic_list]
 
 def get_word(topic):
-    base_dir = os.path.join(os.path.dirname(__file__), 'data')
+    base_dir = os.path.join(os.path.dirname(__file__), 'topics')
     filepath = os.path.join(base_dir, f"{topic}.txt")
     with open(filepath, "r") as f:
         words = [line.strip() for line in f]
