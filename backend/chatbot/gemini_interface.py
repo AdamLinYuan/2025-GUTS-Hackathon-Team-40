@@ -9,14 +9,19 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY') or os.getenv('GOOGLE_API_KEY')
 
 if genai is not None:
-    if not GEMINI_API_KEY:
-        pass
+    if GEMINI_API_KEY:
+        try:
+            genai.configure(api_key=GEMINI_API_KEY)
+            model = genai.GenerativeModel('gemini-2.0-flash')
+        except Exception as _e:
+            # Configuration failed (bad key or model name)
+            print(f"Gemini configuration error: {_e}")
+            model = None  # type: ignore
     else:
-        genai.configure(api_key=GEMINI_API_KEY)
-    model = genai.GenerativeModel('gemini-2.0-flash')
+        model = None  # type: ignore
 else:
     model = None  # type: ignore
 
@@ -26,8 +31,12 @@ Do not ask any questions. You should not guess the same thing twice in a row"""
 
 def get_gemini_response(prompt: str) -> str:
     try:
-        if genai is None or model is None or not GEMINI_API_KEY:
-            raise RuntimeError("Gemini SDK not available or GEMINI_API_KEY missing")
+        if genai is None:
+            raise RuntimeError("Gemini SDK (google-generativeai) is not installed in this environment")
+        if not GEMINI_API_KEY:
+            raise RuntimeError("GEMINI_API_KEY (or GOOGLE_API_KEY) is missing from environment/.env")
+        if model is None:
+            raise RuntimeError("Gemini model not configured (check API key validity and model name)")
         full_prompt = f"{SYSTEM_PROMPT}\n\nUser: {prompt}\nAssistant:"
         response = model.generate_content(full_prompt)
         return response.text.strip()
@@ -37,8 +46,12 @@ def get_gemini_response(prompt: str) -> str:
 
 def get_gemini_response_stream(prompt):
     try:
-        if genai is None or model is None or not GEMINI_API_KEY:
-            raise RuntimeError("Gemini SDK not available or GEMINI_API_KEY missing")
+        if genai is None:
+            raise RuntimeError("Gemini SDK (google-generativeai) is not installed in this environment")
+        if not GEMINI_API_KEY:
+            raise RuntimeError("GEMINI_API_KEY (or GOOGLE_API_KEY) is missing from environment/.env")
+        if model is None:
+            raise RuntimeError("Gemini model not configured (check API key validity and model name)")
         full_prompt = f"{SYSTEM_PROMPT}\n\nUser: {prompt}\nAssistant:"
         response = model.generate_content(full_prompt, stream=True)
         for chunk in response:
@@ -65,8 +78,12 @@ def extract_terms_from_pdf(pdf_bytes: bytes, max_terms: int = 150) -> list:
             )
 
     try:
-        if genai is None or model is None or not GEMINI_API_KEY:
-            raise RuntimeError("Gemini SDK not available or GEMINI_API_KEY missing")
+        if genai is None:
+            raise RuntimeError("Gemini SDK (google-generativeai) is not installed in this environment")
+        if not GEMINI_API_KEY:
+            raise RuntimeError("GEMINI_API_KEY (or GOOGLE_API_KEY) is missing from environment/.env")
+        if model is None:
+            raise RuntimeError("Gemini model not configured (check API key validity and model name)")
         file_part = {"mime_type": "application/pdf", "data": pdf_bytes}
         response = model.generate_content([prompt, file_part])
         text = (response.text or "").strip()
