@@ -20,4 +20,6 @@ urlpatterns = [
     # Conversation management - all protected
     path('conversations/', views.conversation_list, name='conversation_list'),
     path('conversations/<int:conversation_id>/', views.conversation_detail, name='conversation_detail'),
+
+    path('user-details/', views.user_details, name='user_details')
 ]
