@@ -1,0 +1,51 @@
+Tiger Woods
+Jack Nicklaus
+Arnold Palmer
+Gary Player
+Ben Hogan
+Sam Snead
+Bobby Jones
+Phil Mickelson
+Rory McIlroy
+Jordan Spieth
+Brooks Koepka
+Dustin Johnson
+Jon Rahm
+Scottie Scheffler
+The Masters
+US Open
+British Open
+PGA Championship
+Ryder Cup
+Presidents Cup
+Major Championship
+Birdie
+Eagle
+Albatross
+Par
+Bogey
+Double Bogey
+Hole in One
+Ace
+Tee Box
+Fairway
+Green
+Bunker
+Sand Trap
+Water Hazard
+Rough
+Driver
+Iron
+Wedge
+Putter
+Caddie
+Augusta National
+St Andrews
+Pebble Beach
+Pinehurst
+Royal Troon
+Fore
+Mulligan
+Handicap
+Back Nine
+Front Nine

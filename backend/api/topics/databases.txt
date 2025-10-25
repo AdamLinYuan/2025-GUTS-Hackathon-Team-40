@@ -1,0 +1,77 @@
+Relational Database
+SQL
+NoSQL
+MySQL
+PostgreSQL
+Oracle Database
+Microsoft SQL Server
+SQLite
+MongoDB
+Cassandra
+Redis
+DynamoDB
+Couchbase
+Neo4j
+Graph Database
+Document Database
+Key Value Store
+Column Family Store
+Database Management System
+Primary Key
+Foreign Key
+Index
+Normalization
+Denormalization
+First Normal Form
+Second Normal Form
+Third Normal Form
+ACID Properties
+Atomicity
+Consistency
+Isolation
+Durability
+Transaction
+Commit
+Rollback
+SELECT Statement
+INSERT Statement
+UPDATE Statement
+DELETE Statement
+JOIN
+Inner Join
+Left Join
+Right Join
+Outer Join
+Subquery
+Stored Procedure
+Trigger
+View
+Schema
+Table
+Column
+Row
+Query Optimization
+Execution Plan
+Database Indexing
+B-Tree Index
+Hash Index
+Sharding
+Replication
+Master Slave Replication
+Backup
+Recovery
+Database Migration
+ORM
+Object Relational Mapping
+Entity Relationship Diagram
+Data Warehouse
+Data Lake
+ETL Process
+OLTP
+OLAP
+Database Connection Pool
+Concurrency Control
+Deadlock
+Lock
+Optimistic Locking
+Pessimistic Locking

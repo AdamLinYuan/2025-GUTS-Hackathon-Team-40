@@ -1,0 +1,75 @@
+Washington DC
+Ottawa
+Mexico City
+London
+Paris
+Berlin
+Rome
+Madrid
+Lisbon
+Amsterdam
+Brussels
+Vienna
+Prague
+Warsaw
+Budapest
+Athens
+Ankara
+Moscow
+Beijing
+Tokyo
+Seoul
+New Delhi
+Bangkok
+Manila
+Jakarta
+Hanoi
+Kuala Lumpur
+Singapore
+Canberra
+Wellington
+Buenos Aires
+Brasilia
+Lima
+Santiago
+Bogota
+Caracas
+Havana
+Kingston
+Cairo
+Nairobi
+Addis Ababa
+Johannesburg
+Pretoria
+Lagos
+Accra
+Dakar
+Algiers
+Tunis
+Rabat
+Riyadh
+Baghdad
+Tehran
+Damascus
+Beirut
+Jerusalem
+Amman
+Kabul
+Islamabad
+Dhaka
+Colombo
+Kathmandu
+Yangon
+Phnom Penh
+Vientiane
+Ulaanbaatar
+Pyongyang
+Taipei
+Hong Kong
+Macau
+Doha
+Dubai
+Abu Dhabi
+Kuwait City
+Muscat
+Sanaa

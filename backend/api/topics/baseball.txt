@@ -1,0 +1,50 @@
+Babe Ruth
+Jackie Robinson
+Willie Mays
+Hank Aaron
+Ted Williams
+Mickey Mantle
+Joe DiMaggio
+Derek Jeter
+Ken Griffey Jr
+Mike Trout
+Shohei Ohtani
+Aaron Judge
+Clayton Kershaw
+Sandy Koufax
+Cy Young
+World Series
+Home Run
+Strike Out
+Grand Slam
+Perfect Game
+No Hitter
+Triple Play
+Double Play
+Stolen Base
+Balk
+Inning
+Pitcher
+Catcher
+First Base
+Second Base
+Third Base
+Shortstop
+Outfield
+Designated Hitter
+Relief Pitcher
+Closer
+Fastball
+Curveball
+Slider
+Changeup
+Knuckleball
+Yankee Stadium
+Fenway Park
+Wrigley Field
+Dodger Stadium
+New York Yankees
+Boston Red Sox
+Los Angeles Dodgers
+Chicago Cubs
+San Francisco Giants

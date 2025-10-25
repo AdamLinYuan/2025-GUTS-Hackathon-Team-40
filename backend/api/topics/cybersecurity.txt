@@ -1,0 +1,77 @@
+Encryption
+Decryption
+Cryptography
+Public Key
+Private Key
+Symmetric Encryption
+Asymmetric Encryption
+AES
+RSA
+SSL
+TLS
+HTTPS
+Digital Signature
+Certificate Authority
+Two Factor Authentication
+Multi Factor Authentication
+Password
+Hash Function
+SHA-256
+MD5
+Salt
+Firewall
+Antivirus
+Malware
+Virus
+Worm
+Trojan Horse
+Ransomware
+Spyware
+Adware
+Phishing
+Social Engineering
+Man in the Middle Attack
+Denial of Service
+DDoS Attack
+SQL Injection
+Cross Site Scripting
+Buffer Overflow
+Zero Day Exploit
+Vulnerability
+Penetration Testing
+Ethical Hacking
+White Hat
+Black Hat
+Gray Hat
+Security Audit
+Risk Assessment
+Threat Model
+Attack Vector
+Backdoor
+Rootkit
+Botnet
+Keylogger
+Brute Force Attack
+Dictionary Attack
+Rainbow Table
+VPN
+Proxy Server
+Tor Network
+Dark Web
+Blockchain
+Bitcoin
+Smart Contract
+Biometric Authentication
+Fingerprint Scanner
+Face Recognition
+Intrusion Detection System
+Security Information and Event Management
+Incident Response
+Data Breach
+Privacy Policy
+GDPR
+Compliance
+Access Control
+Least Privilege
+Defense in Depth
+Security by Design

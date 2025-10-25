@@ -1,0 +1,46 @@
+Roger Federer
+Rafael Nadal
+Novak Djokovic
+Serena Williams
+Venus Williams
+Steffi Graf
+Martina Navratilova
+Pete Sampras
+Andre Agassi
+Bjorn Borg
+John McEnroe
+Carlos Alcaraz
+Iga Swiatek
+Coco Gauff
+Daniil Medvedev
+Wimbledon
+French Open
+US Open
+Australian Open
+Grand Slam
+Love
+Deuce
+Ace
+Double Fault
+Break Point
+Match Point
+Tiebreaker
+Baseline
+Net
+Serve
+Forehand
+Backhand
+Volley
+Smash
+Drop Shot
+Lob
+Slice
+Topspin
+Clay Court
+Grass Court
+Hard Court
+Centre Court
+All England Club
+Roland Garros
+Flushing Meadows
+Melbourne Park

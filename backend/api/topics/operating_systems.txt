@@ -1,0 +1,81 @@
+Windows
+macOS
+Linux
+Unix
+Android
+iOS
+Ubuntu
+Debian
+Fedora
+Red Hat
+CentOS
+Arch Linux
+Kernel
+Shell
+Command Line
+Terminal
+Bash
+PowerShell
+Process
+Thread
+Multithreading
+Multiprocessing
+Concurrency
+Parallelism
+Process Scheduling
+Context Switch
+CPU Scheduling
+Round Robin
+First Come First Served
+Shortest Job First
+Priority Scheduling
+Memory Management
+Virtual Memory
+Paging
+Segmentation
+Page Fault
+Thrashing
+Cache
+RAM
+ROM
+Swap Space
+File System
+FAT32
+NTFS
+ext4
+HFS+
+APFS
+Inode
+Directory
+Path
+Absolute Path
+Relative Path
+Permission
+Read Write Execute
+Root User
+Superuser
+Device Driver
+Interrupt
+System Call
+Kernel Mode
+User Mode
+Boot Process
+BIOS
+UEFI
+Bootloader
+GRUB
+Deadlock
+Semaphore
+Mutex
+Race Condition
+Critical Section
+Synchronization
+Inter-Process Communication
+Pipe
+Socket
+Shared Memory
+Virtual Machine
+Hypervisor
+Container
+Docker
+Virtualization

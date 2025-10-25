@@ -1,0 +1,81 @@
+HTML
+CSS
+JavaScript
+TypeScript
+React
+Angular
+Vue
+Node.js
+Express
+Django
+Flask
+Ruby on Rails
+Spring Boot
+ASP.NET
+PHP
+Laravel
+REST API
+GraphQL
+AJAX
+JSON
+XML
+HTTP
+HTTPS
+WebSocket
+Server Side Rendering
+Client Side Rendering
+Single Page Application
+Progressive Web App
+Responsive Design
+Mobile First
+Bootstrap
+Tailwind CSS
+Material UI
+jQuery
+DOM
+Virtual DOM
+Event Loop
+Async Await
+Promise
+Callback
+Arrow Function
+Closure
+Hoisting
+Prototype
+Class
+Module
+Import Export
+Webpack
+Babel
+npm
+yarn
+Git
+GitHub
+Version Control
+Front End
+Back End
+Full Stack
+Database
+SQL
+NoSQL
+MongoDB
+PostgreSQL
+MySQL
+Redis
+Authentication
+Authorization
+JWT
+OAuth
+Cookie
+Session
+CORS
+API Gateway
+Microservices
+Serverless
+Cloud Computing
+AWS
+Azure
+Docker
+Kubernetes
+CI/CD
+DevOps

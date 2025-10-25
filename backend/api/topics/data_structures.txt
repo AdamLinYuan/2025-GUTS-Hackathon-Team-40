@@ -1,0 +1,53 @@
+Array
+Linked List
+Doubly Linked List
+Circular Linked List
+Stack
+Queue
+Priority Queue
+Deque
+Hash Table
+Hash Map
+Hash Set
+Binary Tree
+Binary Search Tree
+AVL Tree
+Red-Black Tree
+B-Tree
+B+ Tree
+Heap
+Min Heap
+Max Heap
+Binary Heap
+Fibonacci Heap
+Trie
+Suffix Tree
+Suffix Array
+Segment Tree
+Fenwick Tree
+Binary Indexed Tree
+Disjoint Set
+Union Find
+Graph
+Directed Graph
+Undirected Graph
+Weighted Graph
+Adjacency Matrix
+Adjacency List
+Spanning Tree
+Minimum Spanning Tree
+Tree Traversal
+Depth First Search
+Breadth First Search
+Inorder Traversal
+Preorder Traversal
+Postorder Traversal
+Level Order Traversal
+Bloom Filter
+Skip List
+Splay Tree
+Treap
+Cartesian Tree
+KD Tree
+Quadtree
+Octree

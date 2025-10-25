@@ -1,0 +1,83 @@
+Machine Learning
+Deep Learning
+Neural Network
+Artificial Intelligence
+Supervised Learning
+Unsupervised Learning
+Reinforcement Learning
+Transfer Learning
+Feature Engineering
+Training Data
+Test Data
+Validation Data
+Overfitting
+Underfitting
+Bias Variance Tradeoff
+Gradient Descent
+Backpropagation
+Activation Function
+ReLU
+Sigmoid
+Tanh
+Softmax
+Loss Function
+Cost Function
+Cross Entropy
+Mean Squared Error
+Optimizer
+Adam
+SGD
+Learning Rate
+Batch Size
+Epoch
+Convolutional Neural Network
+Recurrent Neural Network
+LSTM
+GRU
+Transformer
+Attention Mechanism
+Self Attention
+BERT
+GPT
+Large Language Model
+Natural Language Processing
+Computer Vision
+Image Classification
+Object Detection
+Semantic Segmentation
+Generative Adversarial Network
+Variational Autoencoder
+Encoder Decoder
+Regression
+Classification
+Clustering
+K-Means
+Decision Tree
+Random Forest
+Support Vector Machine
+Naive Bayes
+K-Nearest Neighbors
+Principal Component Analysis
+t-SNE
+Dimensionality Reduction
+Ensemble Learning
+Boosting
+Bagging
+XGBoost
+Hyperparameter Tuning
+Grid Search
+Random Search
+Cross Validation
+Confusion Matrix
+Precision
+Recall
+F1 Score
+ROC Curve
+AUC
+TensorFlow
+PyTorch
+Scikit-learn
+Keras
+Pandas
+NumPy
+Matplotlib

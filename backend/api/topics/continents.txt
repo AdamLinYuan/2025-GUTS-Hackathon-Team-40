@@ -1,0 +1,55 @@
+Africa
+Antarctica
+Asia
+Europe
+North America
+South America
+Australia
+Oceania
+Eurasia
+Afro-Eurasia
+Americas
+Sahara Desert
+Sahel
+Sub-Saharan Africa
+East Africa
+West Africa
+North Africa
+Southern Africa
+Central Africa
+Middle East
+Far East
+Southeast Asia
+South Asia
+East Asia
+Central Asia
+Eastern Europe
+Western Europe
+Northern Europe
+Southern Europe
+Central Europe
+Balkans
+Scandinavia
+British Isles
+Iberian Peninsula
+Italian Peninsula
+Balkan Peninsula
+Arabian Peninsula
+Indian Subcontinent
+Indochina
+Caribbean
+Central America
+Latin America
+Mesoamerica
+Patagonia
+Amazon Basin
+Andes Region
+Great Plains
+Midwest
+Pacific Northwest
+Southwest
+Northeast
+Southeast
+Gulf Coast
+West Coast
+East Coast
