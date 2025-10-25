@@ -1,8 +1,8 @@
-import './index.css';
+import '../index.css';
 import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useTheme } from './Layout';
-import { useAuth } from './AuthContext';
+import { useTheme } from '../components/Layout';
+import { useAuth } from '../context/AuthContext';
 
 // Define types
 type ChatbotResponse = {

@@ -1,15 +1,17 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import HomePage from './HomePage';
-import ChatPage from './ChatPage';
-import Layout from './Layout';
-import FeaturesPage from './FeaturesPage';
-import AboutPage from './AboutPage';
-import ContactPage from './ContactPage';
-import LoginPage from './LoginPage';
-import RegisterPage from './RegisterPage';
-import PrivateRoute from './PrivateRoute';
-import { AuthProvider } from './AuthContext';
+import HomePage from './pages/HomePage';
+import DashboardPage from './pages/DashboardPage';
+import ChatPage from './pages/ChatPage';
+import SubcategoriesPage from './pages/SubcategoriesPage';
+import GamePage from './pages/GamePage';
+import Layout from './components/Layout';
+import FeaturesPage from './pages/FeaturesPage';
+import AboutPage from './pages/AboutPage';
+import ContactPage from './pages/ContactPage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import PrivateRoute from './components/PrivateRoute';
+import { AuthProvider } from './context/AuthContext';
 
 const App = () => {
   return (
@@ -26,6 +28,9 @@ const App = () => {
           
           {/* Protected routes */}
           <Route element={<PrivateRoute />}>
+            <Route path="/dashboard" element={<Layout><DashboardPage /></Layout>} />
+            <Route path="/subcategories" element={<Layout><SubcategoriesPage /></Layout>} />
+            <Route path="/game" element={<Layout hideHeader={true}><GamePage /></Layout>} />
             <Route path="/chat" element={<Layout hideHeader={true}><ChatPage /></Layout>} />
           </Route>
         </Routes>

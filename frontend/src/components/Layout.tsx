@@ -1,6 +1,6 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from './AuthContext';
+import { useAuth } from '../context/AuthContext';
 
 // Create a context for dark mode
 export const ThemeContext = createContext({
@@ -62,7 +62,7 @@ const Layout = ({ children, hideHeader = false }: LayoutProps) => {
           <header className="bg-blue-800 text-white p-4 shadow-md">
             <div className="container mx-auto">
               <div className="flex justify-between items-center">
-                <h1 className="text-2xl font-bold">Your App Name</h1>
+                <h1 className="text-2xl font-bold">AIticulate</h1>
                 
                 {/* Authentication buttons */}
                 <div className="flex items-center space-x-4">
@@ -125,14 +125,6 @@ const Layout = ({ children, hideHeader = false }: LayoutProps) => {
                 </div>
               </div>
               
-              <nav className="mt-2">
-                <ul className="flex space-x-4">
-                  <li><Link to="/" className="hover:underline">Home</Link></li>
-                  <li><Link to="/features" className="hover:underline">Features</Link></li>
-                  <li><Link to="/about" className="hover:underline">About</Link></li>
-                  <li><Link to="/contact" className="hover:underline">Contact</Link></li>
-                </ul>
-              </nav>
             </div>
           </header>
         )}

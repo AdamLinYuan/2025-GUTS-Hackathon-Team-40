@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from './AuthContext';
-import { useTheme } from './Layout';
+import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../components/Layout';
 
 const LoginPage = () => {
   const { login } = useAuth();
@@ -46,9 +46,9 @@ const LoginPage = () => {
       
       const userData = await userResponse.json();
       
-      // Login successful
+      // Login successful - redirect to dashboard
       login(data.token, userData);
-      navigate('/');
+      navigate('/dashboard');
     } catch (err: any) {
       setError(err.message);
     } finally {
