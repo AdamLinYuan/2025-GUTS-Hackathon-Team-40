@@ -15,8 +15,8 @@ urlpatterns = [
     path('chat-demo/', views.chat_demo, name='chat_demo'),
 
     # Topic management
-    path('file-upload/', views.file_upload, name='file_upload'),topic_list
-    path('topic-list/', views.topic_list, name='topic_list')
+    # path('file-upload/', views.file_upload, name='file_upload'),
+    path('topic-list/', views.topic_list, name='topic_list'),
     
     # Conversation management - all protected
     path('conversations/', views.conversation_list, name='conversation_list'),

@@ -11,6 +11,8 @@ from rest_framework.authtoken.models import Token
 import json
 import time
 from django.db import transaction
+import random
+import os
 
 from .models import Conversation, Message, PromptLog, UserProfile
 from chatbot.gemini_interface import get_gemini_response, get_gemini_response_stream
@@ -23,7 +25,7 @@ class MessageSerializer(serializers.ModelSerializer):
 class ConversationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Conversation
-        fields = ['id', 'title', 'created_at', 'updated_at']
+        fields = ['id', 'title', 'created_at', 'updated_at', 'score', 'current_word', 'guesses_remaining', 'num_rounds']
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -32,7 +34,7 @@ def chat_stream(request):
     try:
         # Get conversation ID from request or create a new one
         conversation_id = request.data.get('conversation_id')
-        
+
         # Important: Check if conversation_id is None, empty string, or "null" string
         if conversation_id and conversation_id != "null" and conversation_id.strip():
             try:
@@ -42,7 +44,7 @@ def chat_stream(request):
                 print(f"Error retrieving conversation {conversation_id}: {str(e)}")
                 # If conversation doesn't exist, we'll create a new one below
                 conversation_id = None
-        
+
         # Create new conversation if needed
         if not conversation_id or conversation_id == "null" or not conversation_id.strip():
             # Get the first few words of the prompt for a better title
@@ -51,18 +53,24 @@ def chat_stream(request):
                 title = f"Chat about {title_preview}..."
             else:
                 title = "New Conversation"
+
+
+                topic = "HISTORICAL FIGURES" ###HARDCODED
+
+                title = f"TOPIC: {topic}"
                 
             # Create the conversation with error checking
             try:
                 conversation = Conversation.objects.create(
                     user=request.user,
-                    title=title
+                    title=title,
+                    current_word=get_word("historical_figures"),
                 )
                 print(f"Created conversation {conversation.id} for user {request.user.username}")
             except Exception as e:
                 print(f"Error creating conversation: {str(e)}")
                 return Response({"error": f"Could not create conversation: {str(e)}"}, status=500)
-        
+            
         # Save the user message with error checking
         user_prompt = request.data.get('prompt', '')
         try:
@@ -123,6 +131,11 @@ def chat_stream(request):
                     )
                     print(f"Saved bot message with ID: {self.bot_message.id}, length: {len(self.text)}")
                     
+                    if (conversation.current_word in self.text):
+                        conversation.score += 1
+                        conversation.num_rounds -=1
+                        conversation.current_word = get_word("historical_figures") # Hardcoded for testing purposes
+                        conversation.save()
                     # Log the prompt and response
                     processing_time = time.time() - start_time
                     PromptLog.objects.create(
@@ -382,10 +395,18 @@ def edit_message(request, message_id):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def topic_list(request):
-    """Get a list of all conversations for the current user"""
+    """Get a list of all topics for the current user"""
     topic_list = Topic.objects.filter(user=request.user).order_by('-updated_at')
     return [name for topic.topic_name in topics]
 
+def get_word(topic):
+    base_dir = os.path.join(os.path.dirname(__file__), 'data')
+    filepath = os.path.join(base_dir, f"{topic}.txt")
+    with open(filepath, "r") as f:
+        words = [line.strip() for line in f]
+    word = random.choice(words)
+    print(word)
+    return word
 
 
 # @api_view(['PUT'])

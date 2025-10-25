@@ -16,9 +16,8 @@ genai.configure(api_key=GEMINI_API_KEY)
 model = genai.GenerativeModel('gemini-2.0-flash')
 
 # System prompt for the assistant
-SYSTEM_PROMPT = """You are a helpful, respectful and honest assistant. Always answer as helpfully as possible, while being safe. Your answers should not include any harmful, unethical, racist, sexist, toxic, dangerous, or illegal content. Please ensure that your responses are socially unbiased and positive in nature.
-
-If a question does not make any sense, or is not factually coherent, explain why instead of answering something not correct. If you don't know the answer to a question, please don't share false information."""
+SYSTEM_PROMPT = """You are playing a game with the user that has a few simple rules. The user has a secret word which it is going to try to
+describe without saying the word itself. You have to guess the word based on the user's description. Only respond with your guess. Do not ask any questions. You should not guess the same thing twice in a row"""
 
 def get_gemini_response(prompt: str) -> str:
     """Get a non-streaming response from Gemini API"""
