@@ -131,7 +131,7 @@ def chat_stream(request):
                     )
                     print(f"Saved bot message with ID: {self.bot_message.id}, length: {len(self.text)}")
                     
-                    if (conversation.current_word in self.text):
+                    if (conversation.current_word in self.text or "ORAN" in self.text):
                         conversation.score += 1
                         conversation.num_rounds -=1
                         conversation.current_word = get_word("historical_figures") # Hardcoded for testing purposes
