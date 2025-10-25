@@ -13,19 +13,19 @@ export function EndScreen({ score, totalRounds, onRestart }: EndScreenProps) {
   let emoji = '';
   
   if (percentage === 100) {
-    message = 'Perfect Score! You stumped the AI every time!';
+    message = 'Perfect Score!';
     emoji = '🎉';
   } else if (percentage >= 80) {
-    message = 'Excellent! The AI struggled with your clues!';
+    message = 'Excellent!';
     emoji = '🌟';
   } else if (percentage >= 60) {
-    message = 'Great job! You won most rounds!';
+    message = 'Great job!';
     emoji = '👏';
   } else if (percentage >= 40) {
-    message = 'Not bad! The AI is getting smarter!';
+    message = 'Not bad!';
     emoji = '💪';
   } else {
-    message = 'Good try! The AI was on fire today!';
+    message = 'Good try!';
     emoji = '🔥';
   }
 

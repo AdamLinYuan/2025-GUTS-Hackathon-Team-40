@@ -4,6 +4,7 @@ import DashboardPage from './pages/DashboardPage';
 import ChatPage from './pages/ChatPage';
 import SubcategoriesPage from './pages/SubcategoriesPage';
 import GamePage from './pages/GamePage';
+import UploadWordListPage from './pages/UploadWordListPage';
 import Layout from './components/Layout';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -15,15 +16,13 @@ const App = () => {
     <AuthProvider>
       <Router>
         <Routes>
-          {/* Public routes */}
           <Route path="/" element={<Layout><HomePage /></Layout>} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          
-          {/* Protected routes */}
           <Route element={<PrivateRoute />}>
             <Route path="/dashboard" element={<Layout><DashboardPage /></Layout>} />
             <Route path="/subcategories" element={<Layout><SubcategoriesPage /></Layout>} />
+            <Route path="/upload-word-list" element={<Layout><UploadWordListPage /></Layout>} />
             <Route path="/game" element={<Layout hideHeader={true}><GamePage /></Layout>} />
             <Route path="/chat" element={<Layout hideHeader={true}><ChatPage /></Layout>} />
           </Route>

@@ -1,12 +1,9 @@
-// API service for the AI Articulate game
 const API_BASE_URL = 'http://localhost:8000/api';
 
-// Get auth token from localStorage
 const getAuthToken = () => {
   return localStorage.getItem('token');
 };
 
-// Create headers with authentication
 const getHeaders = () => {
   const token = getAuthToken();
   return {
@@ -30,9 +27,6 @@ export interface Message {
   created_at: string;
 }
 
-/**
- * Start a new game session
- */
 export const startGameSession = async (
   category: string,
   subcategory: string,
@@ -53,7 +47,6 @@ export const startGameSession = async (
     throw new Error(`Failed to start game session: ${response.status} ${response.statusText}`);
   }
 
-  // For SSE, we need to read the stream to get the conversation_id
   const reader = response.body?.getReader();
   const decoder = new TextDecoder();
   let conversationId = '';
@@ -92,7 +85,6 @@ export const startGameSession = async (
     throw new Error('Failed to retrieve conversation ID from stream');
   }
 
-  // Fetch the conversation details
   const convResponse = await fetch(`${API_BASE_URL}/conversations/${conversationId}/`, {
     headers: getHeaders(),
   });
@@ -104,9 +96,6 @@ export const startGameSession = async (
   return convResponse.json();
 };
 
-/**
- * Get conversation details (to retrieve current word)
- */
 export const getConversationDetails = async (conversationId: string): Promise<GameSession> => {
   const response = await fetch(`${API_BASE_URL}/conversations/${conversationId}/`, {
     headers: getHeaders(),
@@ -119,9 +108,6 @@ export const getConversationDetails = async (conversationId: string): Promise<Ga
   return response.json();
 };
 
-/**
- * Submit a clue and get AI's response via streaming
- */
 export const submitClueAndGetGuess = async (
   conversationId: string,
   clue: string,
@@ -164,10 +150,8 @@ export const submitClueAndGetGuess = async (
             }
 
             if (data.done) {
-              // Check if the response contains a correct guess
-              // The backend updates the conversation when AI guesses correctly
               const updatedConv = await getConversationDetails(conversationId);
-              const isCorrect = updatedConv.score > 0; // Score increments when AI guesses
+              const isCorrect = updatedConv.score > 0;
               onComplete(fullResponse, isCorrect);
               return;
             }
@@ -180,17 +164,11 @@ export const submitClueAndGetGuess = async (
   }
 };
 
-/**
- * Get the current word for the conversation
- */
 export const getCurrentWord = async (conversationId: string): Promise<string> => {
   const conversation = await getConversationDetails(conversationId);
   return conversation.current_word;
 };
 
-/**
- * Check if AI guessed correctly by comparing responses
- */
 export const checkIfCorrectGuess = async (
   conversationId: string,
   previousScore: number
@@ -203,4 +181,27 @@ export const checkIfCorrectGuess = async (
     newScore: conversation.score,
     newWord: conversation.current_word,
   };
+};
+
+export const uploadTerms = async (file: File, maxTerms = 50): Promise<string[]> => {
+  const token = getAuthToken();
+  const form = new FormData();
+  form.append('file', file);
+  form.append('max_terms', String(maxTerms));
+
+  const response = await fetch(`${API_BASE_URL}/upload-terms/`, {
+    method: 'POST',
+    headers: {
+      ...(token && { Authorization: `Token ${token}` }),
+    } as any,
+    body: form,
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Upload failed: ${response.status} ${response.statusText} - ${text}`);
+  }
+
+  const data = await response.json();
+  return (data.terms || []) as string[];
 };

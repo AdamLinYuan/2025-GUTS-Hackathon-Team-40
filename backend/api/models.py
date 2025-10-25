@@ -5,8 +5,10 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='userProfile')
     last_active = models.DateTimeField(default=timezone.now)
+    rounds_played = models.IntegerField(default=0)
+    rounds_won = models.IntegerField(default=0)
     max_conversations = models.IntegerField(default=10)
     
     def __str__(self):
@@ -32,7 +34,7 @@ class Conversation(models.Model):
     score = models.PositiveIntegerField(default=0)
     current_word = models.CharField(max_length=100, default="")
     guesses_remaining = models.PositiveIntegerField(default=3)
-    num_rounds = models.PositiveIntegerField(default=10)
+    num_rounds = models.PositiveIntegerField(default=5)
     topic = models.ForeignKey(
         Topic,
         on_delete=models.SET_NULL,
