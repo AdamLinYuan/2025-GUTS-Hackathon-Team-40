@@ -59,7 +59,7 @@ const Layout = ({ children, hideHeader = false }: LayoutProps) => {
     <ThemeContext.Provider value={{ isDarkMode, toggleDarkMode }}>
       <div className="min-h-screen bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-200">
         {!hideHeader && (
-          <header className="bg-blue-800 text-white p-4 shadow-md">
+          <header className="sticky top-0 z-50 bg-blue-800 text-white p-4 shadow-md">
             <div className="container mx-auto">
               <div className="flex justify-between items-center">
                 <h1 className="text-2xl font-bold">AIticulate</h1>
