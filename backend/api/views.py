@@ -33,6 +33,11 @@ class ConversationSerializer(serializers.ModelSerializer):
         model = Conversation
         fields = ['id', 'title', 'created_at', 'updated_at', 'score', 'current_word', 'guesses_remaining', 'num_rounds']
 
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = ['rounds_played', 'rounds_won']
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 
@@ -70,8 +75,8 @@ def chat_stream(request, topic_name):
                     current_word=get_word(topic_name),
 
                 )
-                request.user.userProfile.rounds_played += 1
-                request.user.userProfile.save()
+                request.user.userprofile.rounds_played += 1
+                request.user.userprofile.save()
                 print(f"Created conversation {conversation.id} for user {request.user.username}")
             except Exception as e:
                 print(f"Error creating conversation: {str(e)}")
@@ -167,8 +172,8 @@ def chat_stream(request, topic_name):
                         conversation.num_rounds -= 1
                         conversation.current_word = get_word(topic_name)
                         conversation.guesses_remaining = 3
-                        request.user.userProfile.rounds_played += 1
-                        request.user.userProfile.save()
+                        request.user.userprofile.rounds_played += 1
+                        request.user.userprofile.save()
                     else:
                         # Normal guess logic
                         conversation.guesses_remaining -= 1
@@ -179,16 +184,16 @@ def chat_stream(request, topic_name):
                             conversation.num_rounds -= 1
                             conversation.current_word = get_word(topic_name)
                             conversation.guesses_remaining = 3
-                            request.user.userProfile.rounds_won += 1
-                            request.user.userProfile.rounds_played += 1
-                            request.user.userProfile.save()
+                            request.user.userprofile.rounds_won += 1
+                            request.user.userprofile.rounds_played += 1
+                            request.user.userprofile.save()
                         elif (conversation.guesses_remaining == 0):
                             # Out of guesses - get new word
                             conversation.num_rounds -= 1
                             conversation.current_word = get_word(topic_name)
                             conversation.guesses_remaining = 3
-                            request.user.userProfile.rounds_played += 1
-                            request.user.userProfile.save()
+                            request.user.userprofile.rounds_played += 1
+                            request.user.userprofile.save()
                     
                     conversation.save()
                     processing_time = time.time() - start_time
@@ -472,6 +477,14 @@ def user_details(request):
 # @permission_classes([AllowAny])
 # def file_upload(filename):
 #     filepath = pathlib.Path(filename)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user_profile(request):
+    profile = request.user.userprofile
+    serializer = UserProfileSerializer(profile)
+    print(f"User profile data: {serializer.data}")
+    return Response(serializer.data)
 
 
 @api_view(['POST'])

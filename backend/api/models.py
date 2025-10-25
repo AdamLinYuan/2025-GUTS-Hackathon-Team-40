@@ -5,7 +5,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='userProfile')
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='userprofile')
     last_active = models.DateTimeField(default=timezone.now)
     rounds_played = models.IntegerField(default=0)
     rounds_won = models.IntegerField(default=0)

@@ -59,6 +59,7 @@ const ChatPage = () => {
     if (authContext.loading || !authContext.isAuthenticated || !authContext.token) return;
     
     console.log("Auth is ready, checking for saved conversation");
+    console.log("chat page auth token:" , authContext.token);
     
     // Load conversation ID from localStorage
     const savedConversationId = localStorage.getItem('currentConversationId');
