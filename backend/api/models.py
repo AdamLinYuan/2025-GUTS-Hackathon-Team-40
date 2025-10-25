@@ -12,10 +12,11 @@ class UserProfile(models.Model):
     def __str__(self):
         return f"Profile for {self.user.username}"
 
-class Topic(models.Model):
+class Topic(models.Model): #sub-category
     topic_name = models.CharField(max_length=100)
     related_words = models.JSONField(default=list)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='conversations', null=True, blank=True)
+    category = models.CharField(max_length=100, null=True, blank=True)
 
 
     def __str__(self):
@@ -28,6 +29,10 @@ class Conversation(models.Model):
     is_demo = models.BooleanField(default=False)  # Mark demo conversations
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    score = models.PositiveIntegerField(default=0)
+    current_word = models.CharField(max_length=100)
+    guesses_remaining = models.PositiveIntegerField(default=3)
+    num_rounds = models.PositiveIntegerField(default=10)
     topic = models.ForeignKey(
         Topic,
         on_delete=models.SET_NULL,

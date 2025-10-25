@@ -30,38 +30,21 @@ class ConversationSerializer(serializers.ModelSerializer):
 def chat_stream(request):
     """Full chatbot with history - requires authentication"""
     try:
-        # Get conversation ID from request or create a new one
-        conversation_id = request.data.get('conversation_id')
-        
-        # Important: Check if conversation_id is None, empty string, or "null" string
-        if conversation_id and conversation_id != "null" and conversation_id.strip():
-            try:
-                conversation = get_object_or_404(Conversation, id=conversation_id, user=request.user)
-                print(f"Retrieved existing conversation: {conversation.id}")
-            except Exception as e:
-                print(f"Error retrieving conversation {conversation_id}: {str(e)}")
-                # If conversation doesn't exist, we'll create a new one below
-                conversation_id = None
-        
-        # Create new conversation if needed
-        if not conversation_id or conversation_id == "null" or not conversation_id.strip():
-            # Get the first few words of the prompt for a better title
-            title_preview = ' '.join(request.data.get('prompt', '').split()[:5])
-            if len(title_preview) > 0:
-                title = f"Chat about {title_preview}..."
-            else:
-                title = "New Conversation"
+        topic = "HISTORICAL FIGURES" ###HARDCODED
+
+        title = f"TOPIC: {topic}"
                 
-            # Create the conversation with error checking
-            try:
-                conversation = Conversation.objects.create(
-                    user=request.user,
-                    title=title
-                )
-                print(f"Created conversation {conversation.id} for user {request.user.username}")
-            except Exception as e:
-                print(f"Error creating conversation: {str(e)}")
-                return Response({"error": f"Could not create conversation: {str(e)}"}, status=500)
+        # Create the conversation with error checking
+        try:
+            conversation = Conversation.objects.create(
+                user=request.user,
+                title=title,
+                current_word="Stalin" # Hardcoded for testing purposes
+            )
+            print(f"Created conversation {conversation.id} for user {request.user.username}")
+        except Exception as e:
+            print(f"Error creating conversation: {str(e)}")
+            return Response({"error": f"Could not create conversation: {str(e)}"}, status=500)
         
         # Save the user message with error checking
         user_prompt = request.data.get('prompt', '')
@@ -123,6 +106,11 @@ def chat_stream(request):
                     )
                     print(f"Saved bot message with ID: {self.bot_message.id}, length: {len(self.text)}")
                     
+                    if (conversation.current_word in self.text):
+                        conversation.score += 1
+                        conversation.num_rounds -=1
+                    else:
+                        conversation.current_word = "Lenin" # Hardcoded for testing purposes
                     # Log the prompt and response
                     processing_time = time.time() - start_time
                     PromptLog.objects.create(
