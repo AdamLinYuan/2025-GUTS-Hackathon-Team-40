@@ -403,7 +403,8 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
 
   const handleNextRound = () => {
     if (gameData.round >= gameData.totalRounds) {
-      // Complete the game
+      // Complete the game - update gameData with final score from backend
+      setGameData({ ...gameData, score: currentScore });
       console.log('Game completed!', { gameSessionId, finalScore: currentScore });
       onEndGame();
     } else {
