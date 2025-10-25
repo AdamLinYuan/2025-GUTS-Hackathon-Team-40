@@ -7,7 +7,8 @@ urlpatterns = [
     path('auth/register/', views.register_user, name='register'),
     path('auth/user/', views.user_info, name='user_info'),
     path('auth/logout/', views.logout_view, name='logout'),
-    path('chat-stream/', views.chat_stream, name='chat_stream'),
+
+    path('chat-stream/<str:topic_name>/', views.chat_stream, name='chat_stream'),
     path('chat-demo/', views.chat_demo, name='chat_demo'),
     path('topic-list/', views.topic_list, name='topic_list'),
     path('set-topic/', views.set_topic, name='set_topic'),

@@ -231,7 +231,7 @@ const ChatPage = () => {
       const conversationId = localStorage.getItem('currentConversationId');
       
       // Create a fetch request for streaming with auth token
-      const response = await fetch('http://localhost:8000/api/chat-stream/', {
+      const response = await fetch('http://localhost:8000/api/chat-stream/nba_players/', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

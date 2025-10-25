@@ -35,7 +35,9 @@ class ConversationSerializer(serializers.ModelSerializer):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def chat_stream(request):
+
+def chat_stream(request, topic_name):
+    """Full chatbot with history - requires authentication"""
     try:
         conversation_id = request.data.get('conversation_id')
         if conversation_id and conversation_id != "null" and conversation_id.strip():
@@ -53,12 +55,19 @@ def chat_stream(request):
                 topic = "ANCIENT HISTORY"
 
                 title = f"TOPIC: {topic}"
+            
+            # Use the topic_name from URL parameter or default
+            if not topic_name:
+                topic_name = "ancient_history"
+            
+            print(f"Using topic: {topic_name}")
                 
             try:
                 conversation = Conversation.objects.create(
                     user=request.user,
                     title=title,
-                    current_word=get_word("ancient_history"),
+
+                    current_word=get_word(topic_name),
 
                 )
                 request.user.userProfile.rounds_played += 1
@@ -392,11 +401,34 @@ def topic_list(request):
 def get_word(topic):
     base_dir = os.path.join(os.path.dirname(__file__), 'topics')
     filepath = os.path.join(base_dir, f"{topic}.txt")
-    with open(filepath, "r") as f:
-        words = [line.strip() for line in f]
-    word = random.choice(words)
-    print(word)
-    return word
+    
+    # Check if the topic file exists, if not default to ancient_history
+    if not os.path.exists(filepath):
+        print(f"Topic file '{topic}.txt' not found, defaulting to ancient_history")
+        topic = "ancient_history"
+        filepath = os.path.join(base_dir, f"{topic}.txt")
+    
+    try:
+        with open(filepath, "r") as f:
+            words = [line.strip() for line in f if line.strip()]  # Filter out empty lines
+        
+        if not words:
+            print(f"Topic file '{topic}.txt' is empty, defaulting to ancient_history")
+            filepath = os.path.join(base_dir, "ancient_history.txt")
+            with open(filepath, "r") as f:
+                words = [line.strip() for line in f if line.strip()]
+        
+        word = random.choice(words)
+        print(f"Selected word: {word} from topic: {topic}")
+        return word
+    except Exception as e:
+        print(f"Error reading topic file: {str(e)}, defaulting to ancient_history")
+        filepath = os.path.join(base_dir, "ancient_history.txt")
+        with open(filepath, "r") as f:
+            words = [line.strip() for line in f if line.strip()]
+        word = random.choice(words)
+        print(f"Selected word: {word} from default topic: ancient_history")
+        return word
 
 
 @api_view(['GET'])
