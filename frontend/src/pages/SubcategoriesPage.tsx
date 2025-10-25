@@ -109,7 +109,8 @@ const SubcategoriesPage = () => {
     }
     const topicName = subcategory.toLowerCase().replace(/ /g, '_');
     try {
-      const response = await fetch('http://localhost:8000/api/set-topic/', {
+      // POST to backend with topic_name
+      const response = await fetch('http://localhost:8000/api/chat-stream/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -13,6 +13,8 @@ import time
 from django.db import transaction
 import random
 import os
+import re
+import difflib
 
 from .models import Conversation, Message, PromptLog, UserProfile, Topic
 from chatbot.gemini_interface import (
@@ -48,10 +50,7 @@ def chat_stream(request):
             if len(title_preview) > 0:
                 title = f"Chat about {title_preview}..."
             else:
-                title = "New Conversation"
-
-
-                topic = "HISTORICAL FIGURES"
+                topic = "ANCIENT HISTORY"
 
                 title = f"TOPIC: {topic}"
                 
@@ -59,8 +58,11 @@ def chat_stream(request):
                 conversation = Conversation.objects.create(
                     user=request.user,
                     title=title,
-                    current_word=get_word("historical_figures"),
+                    current_word=get_word("ancient_history"),
+
                 )
+                request.user.userProfile.rounds_played += 1
+                request.user.userProfile.save()
                 print(f"Created conversation {conversation.id} for user {request.user.username}")
             except Exception as e:
                 print(f"Error creating conversation: {str(e)}")
@@ -116,12 +118,53 @@ def chat_stream(request):
                         content=self.text
                     )
                     print(f"Saved bot message with ID: {self.bot_message.id}, length: {len(self.text)}")
+
+                    # fuzzy / near-match helper
+                    def _normalize(s):
+                        return re.sub(r'[^a-z0-9\s]', '', (s or "").lower()).strip()
+                    
+                    def is_near_match(text, target, token_subset=True, ratio_threshold=0.7):
+                        if not target:
+                            return False
+                        text_n = _normalize(text)
+                        target_n = _normalize(target)
+                        # exact substring
+                        if target_n and target_n in text_n:
+                            return True
+                        # all target tokens appear somewhere in text (e.g., "empire state" in "empire state building")
+                        if token_subset:
+                            t_tokens = [t for t in target_n.split() if t]
+                            txt_tokens = [t for t in text_n.split() if t]
+                            if t_tokens and set(t_tokens).issubset(set(txt_tokens)):
+                                return True
+                        # fuzzy ratio against entire text
+                        if difflib.SequenceMatcher(None, target_n, text_n).ratio() >= ratio_threshold:
+                            return True
+                                                # fuzzy ratio against sliding windows of text tokens (catch shorter matches)
+                        tlen = len(target_n.split())
+                        txt_tokens = text_n.split()
+                        if tlen > 0 and len(txt_tokens) >= 1:
+                            # check window sizes around target length
+                            for w in range(max(1, tlen), min(len(txt_tokens), tlen + 3) + 1):
+                                for i in range(0, len(txt_tokens) - w + 1):
+                                    window = " ".join(txt_tokens[i:i+w])
+                                    if difflib.SequenceMatcher(None, target_n, window).ratio() >= ratio_threshold:
+                                        return True
+                        return False
+                    
+                    # Check if AI guessed the word OR if user used the backdoor "ORAN"
                     conversation.guesses_remaining -= 1
                     if (conversation.current_word in self.text or "ORAN" in user_prompt):
                         conversation.score += 1
                         conversation.num_rounds -= 1
                         conversation.current_word = get_word("historical_figures")
                         conversation.guesses_remaining = 3
+                        conversation.current_word = get_word("ancient_history") # Hardcoded for testing purposes
+                        conversation.guesses_remaining = 3  # Reset to 3 guesses for new word
+                        request.user.userProfile.rounds_won += 1
+                        request.user.userProfile.rounds_played += 1
+                        request.user.userProfile.save()
+                    
                     conversation.save()
                     processing_time = time.time() - start_time
                     PromptLog.objects.create(
@@ -347,7 +390,7 @@ def topic_list(request):
     return Response({"topics": names})
 
 def get_word(topic):
-    base_dir = os.path.join(os.path.dirname(__file__), 'data')
+    base_dir = os.path.join(os.path.dirname(__file__), 'topics')
     filepath = os.path.join(base_dir, f"{topic}.txt")
     with open(filepath, "r") as f:
         words = [line.strip() for line in f]
@@ -355,6 +398,27 @@ def get_word(topic):
     print(word)
     return word
 
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user_details(request):
+    """Get details for a specific user"""
+    try:
+        user_profile = get_object_or_404(UserProfile, user=request.user)
+        
+        
+        # Combine data
+        result = {
+            "username": request.user.username,
+            "account_created": request.user.date_joined,
+            "rounds_played" : user_profile.rounds_played,
+            "rounds_won" : user_profile.rounds_won
+        }
+        
+        return Response(result)
+    except Exception as e:
+        print(f"Error in conversation_detail: {str(e)}")
+        return Response({"error": str(e)}, status=500)
 
 # @api_view(['PUT'])
 # @permission_classes([AllowAny])

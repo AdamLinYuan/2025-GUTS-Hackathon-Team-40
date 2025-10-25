@@ -21,7 +21,7 @@ else:
     model = None  # type: ignore
 
 SYSTEM_PROMPT = """You are playing a game with the user that has a few simple rules. The user has a secret word which it is going to try to
-describe without saying the word itself. You have to guess the word based on the user's description. Only respond with your guess. If the guess is a person, use their full name. 
+describe without saying the word itself. You have to guess the word based on the user's description. Only respond with your guess. You are allowed to say "I don't know" if the sentence could be describing many things or doesn't make sense. If the guess is a person, use their full name. 
 Do not ask any questions. You should not guess the same thing twice in a row"""
 
 def get_gemini_response(prompt: str) -> str:
