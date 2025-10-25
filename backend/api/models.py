@@ -12,12 +12,29 @@ class UserProfile(models.Model):
     def __str__(self):
         return f"Profile for {self.user.username}"
 
+class Topic(models.Model):
+    topic_name = models.CharField(max_length=100)
+    related_words = models.JSONField(default=list)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='conversations', null=True, blank=True)
+
+
+    def __str__(self):
+        return self.topic_name
+
+
 class Conversation(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='conversations', null=True, blank=True)
     title = models.CharField(max_length=255)
     is_demo = models.BooleanField(default=False)  # Mark demo conversations
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    topic = models.ForeignKey(
+        Topic,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='conversations'
+    )
     
     def __str__(self):
         if self.user:

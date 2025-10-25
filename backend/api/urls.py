@@ -13,6 +13,7 @@ urlpatterns = [
     # Chat endpoints - protected and demo versions
     path('chat-stream/', views.chat_stream, name='chat_stream'),
     path('chat-demo/', views.chat_demo, name='chat_demo'),
+    path('file-upload/', views.file_upload, name='file_upload'),
     
     # Conversation management - all protected
     path('conversations/', views.conversation_list, name='conversation_list'),
