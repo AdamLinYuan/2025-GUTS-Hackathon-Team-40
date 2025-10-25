@@ -32,6 +32,7 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
   const [gameSessionId, setGameSessionId] = useState<string>('');
   const [currentWord, setCurrentWord] = useState('');
   const [displayedWord, setDisplayedWord] = useState(''); // Word shown to user during active round
+  const [wordDescription, setWordDescription] = useState(''); // AI-generated description of the word
   const [messages, setMessages] = useState<Message[]>([]);
   const [timeLeft, setTimeLeft] = useState(30);
   const [isRoundActive, setIsRoundActive] = useState(true);
@@ -214,6 +215,7 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
         setTimeLeft(30);
         setIsRoundActive(true);
         setCluesGiven([]);
+        setWordDescription(''); // Clear previous word description
         setRoundStartTime(Date.now());
       } catch (error) {
         console.error('Failed to initialize round:', error);
@@ -247,6 +249,20 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Display word description when it's updated (after timeout or out of guesses)
+  useEffect(() => {
+    if (wordDescription && !isRoundActive) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: (Date.now() + 1).toString(),
+          type: 'system',
+          text: `Answer: \n\n${wordDescription}`,
+        },
+      ]);
+    }
+  }, [wordDescription]);
 
   const handleSubmitClue = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -396,6 +412,7 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
                     
                     setCurrentScore(newScore);
                     setCurrentWord(convData.current_word);
+                    setWordDescription(convData.word_description || '');
                     
                     // Pass the guessed word to handleRoundEnd
                     handleRoundEnd(true, guessedWord);
@@ -404,6 +421,7 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
                     const oldWord = currentWord;
                     setCurrentWord(convData.current_word);
                     setGuessesRemaining(convData.guesses_remaining);
+                    setWordDescription(convData.word_description || '');
                     handleRoundEnd(false, oldWord);
                   }
                 }
@@ -515,7 +533,9 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
                         const convData = await convResponse.json();
                         setCurrentWord(convData.current_word);
                         setGuessesRemaining(convData.guesses_remaining || 3);
+                        setWordDescription(convData.word_description || '');
                         console.log('New word after timeout:', convData.current_word);
+                        console.log('Word description:', convData.word_description);
                       }
                       break;
                     }

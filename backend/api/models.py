@@ -33,6 +33,7 @@ class Conversation(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     score = models.PositiveIntegerField(default=0)
     current_word = models.CharField(max_length=100, default="")
+    word_description = models.TextField(default="", blank=True)  # AI-generated description when round ends
     guesses_remaining = models.PositiveIntegerField(default=4)
     num_rounds = models.PositiveIntegerField(default=5)
     topic = models.ForeignKey(

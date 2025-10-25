@@ -113,3 +113,26 @@ def extract_terms_from_pdf(pdf_bytes: bytes, max_terms: int = 150) -> list:
     except Exception as e:
         print(f"Error extracting terms from PDF: {e}")
         return []
+
+
+def get_word_description(word: str, topic: str = "") -> str:
+    """
+    Generate a short, informative description of a word.
+    Used when the player runs out of guesses or time.
+    """
+    try:
+        if genai is None:
+            raise RuntimeError("Gemini SDK (google-generativeai) is not installed in this environment")
+        if not GEMINI_API_KEY:
+            raise RuntimeError("GEMINI_API_KEY (or GOOGLE_API_KEY) is missing from environment/.env")
+        if model is None:
+            raise RuntimeError("Gemini model not configured (check API key validity and model name)")
+        
+        topic_context = f" in the context of {topic}" if topic else ""
+        prompt = f"Provide a brief, informative 1-2 sentence description of '{word}'{topic_context}. Be concise and educational."
+        
+        response = model.generate_content(prompt)
+        return response.text.strip()
+    except Exception as e:
+        print(f"Error generating word description: {str(e)}")
+        return f"'{word}' - No description available."
