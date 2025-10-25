@@ -16,7 +16,7 @@ import os
 import re
 import difflib
 
-from .models import Conversation, Message, PromptLog, UserProfile
+from .models import Conversation, Message, PromptLog, UserProfile, Topic
 from chatbot.gemini_interface import get_gemini_response, get_gemini_response_stream
 
 class MessageSerializer(serializers.ModelSerializer):
@@ -167,17 +167,17 @@ def chat_stream(request):
                         return False
                     
                     # Check if AI guessed the word OR if user used the backdoor "ORAN"
-                    if (is_near_match(self.text, conversation.current_word) or "ORAN" in user_prompt):
+                    conversation.guesses_remaining -= 1
+                    
+                    # Check if AI guessed the word OR if user used the backdoor "ORAN"
+                    if (conversation.current_word in self.text or "ORAN" in user_prompt):
                         conversation.score += 1
-                        request.user.userProfile.rounds_won += 1
                         conversation.num_rounds -= 1
                         conversation.current_word = get_word("historical_figures") # Hardcoded for testing purposes
-                        request.user.userProfile.rounds_played += 1
-                        request.user.userProfile.save()
-                        conversation.save()
-                    else:
-                        conversation.guesses_remaining -= 1
-                        conversation.save()
+                        conversation.guesses_remaining = 3  # Reset to 3 guesses for new word
+                    
+                    conversation.save()
+                        
                     # Log the prompt and response
                     processing_time = time.time() - start_time
                     PromptLog.objects.create(
@@ -434,12 +434,29 @@ def edit_message(request, message_id):
     except Exception as e:
         return Response({"error": f"Error editing message: {str(e)}"}, status=500)
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def reset_round(request, conversation_id):
+    """Reset guesses_remaining for a new round"""
+    try:
+        conversation = get_object_or_404(Conversation, id=conversation_id, user=request.user)
+        conversation.guesses_remaining = 3
+        conversation.save()
+        
+        return Response({
+            "success": True,
+            "guesses_remaining": conversation.guesses_remaining,
+            "message": "Round reset successfully"
+        })
+    except Exception as e:
+        return Response({"error": f"Error resetting round: {str(e)}"}, status=500)
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def topic_list(request):
     """Get a list of all topics for the current user"""
     topic_list = Topic.objects.filter(user=request.user).order_by('-updated_at')
-    return [name for topic.topic_name in topics]
+    return [name for name in topic_list]
 
 def get_word(topic):
     base_dir = os.path.join(os.path.dirname(__file__), 'data')
