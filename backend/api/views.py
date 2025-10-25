@@ -132,16 +132,16 @@ def chat_stream(request):
                     print(f"Saved bot message with ID: {self.bot_message.id}, length: {len(self.text)}")
                     
                     # Check if AI guessed the word OR if user used the backdoor "ORAN"
+                    conversation.guesses_remaining -= 1
+                    
+                    # Check if AI guessed the word OR if user used the backdoor "ORAN"
                     if (conversation.current_word in self.text or "ORAN" in user_prompt):
                         conversation.score += 1
-                        conversation.num_rounds -=1
-                        conversation.current_word = get_word("historical_figures")
-                        conversation.guesses_remaining = 3
-                        conversation.save()
-                    else:
-                        conversation.guesses_remaining -= 1
-                        if conversation.guesses_remaining == 0:
-                            return Response({"Reason": "You've run out of guesses"}, status=200)
+                        conversation.num_rounds -= 1
+                        conversation.current_word = get_word("historical_figures") # Hardcoded for testing purposes
+                        conversation.guesses_remaining = 3  # Reset to 3 guesses for new word
+                    
+                    conversation.save()
                         
                     # Log the prompt and response
                     processing_time = time.time() - start_time
