@@ -142,6 +142,59 @@ const SubcategoriesPage = () => {
       navigate('/upload-word-list');
       return;
     }
+    
+    // Handle Random Mode
+    if (category === 'custom' && subcategory === 'Random Mode') {
+      try {
+        // Fetch all available topics
+        const response = await fetch('http://localhost:8000/api/all-topics-list/', {
+          headers: {
+            'Authorization': `Token ${authContext.token}`
+          }
+        });
+        
+        if (!response.ok) {
+          console.error('Failed to fetch topics:', response.statusText);
+          return;
+        }
+        
+        const data = await response.json();
+        
+        if (data.topics && Array.isArray(data.topics) && data.topics.length > 0) {
+          // Pick a random topic
+          const randomTopic = data.topics[Math.floor(Math.random() * data.topics.length)];
+          console.log(`Random topic selected: ${randomTopic}`);
+          
+          // Start the game with the random topic
+          const chatResponse = await fetch(`http://localhost:8000/api/chat-stream/${randomTopic}/`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Token ${authContext.token}`
+            },
+            body: JSON.stringify({ prompt: `Starting game with random topic: ${randomTopic}` })
+          });
+          
+          if (!chatResponse.ok) {
+            console.error('Failed to set topic:', chatResponse.statusText);
+          }
+          
+          // Navigate to game with the random topic
+          // Format the topic name for display
+          const displayName = randomTopic.split('_').map((word: string) => 
+            word.charAt(0).toUpperCase() + word.slice(1)
+          ).join(' ');
+          
+          navigate(`/game?category=random&subcategory=${encodeURIComponent(displayName)}`);
+        } else {
+          console.error('No topics available for random mode');
+        }
+      } catch (error) {
+        console.error('Error in random mode:', error);
+      }
+      return;
+    }
+    
     const topicName = subcategory.toLowerCase().replace(/ /g, '_');
     try {
       // POST to backend with topic_name in URL

@@ -615,3 +615,37 @@ def set_topic(request):
         return Response({"success": True, "topic": topic.topic_name})
     except Exception as e:
         return Response({"error": f"Failed to set topic: {e}"}, status=500)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def all_topics_list(request):
+    """Get all available topics from both topics/ and custom_topics/ folders"""
+    try:
+        topics = []
+        
+        # Get topics from topics folder
+        topics_dir = os.path.join(os.path.dirname(__file__), 'topics')
+        if os.path.exists(topics_dir):
+            for filename in os.listdir(topics_dir):
+                if filename.endswith('.txt') and filename != 'famous_icons.txt':
+                    # Remove .txt extension and format name
+                    topic_name = filename[:-4]
+                    topics.append(topic_name)
+        
+        # Get topics from custom_topics folder
+        custom_dir = os.path.join(os.path.dirname(__file__), 'custom_topics')
+        if os.path.exists(custom_dir):
+            for filename in os.listdir(custom_dir):
+                if filename.endswith('.txt'):
+                    # Remove .txt extension
+                    topic_name = filename[:-4]
+                    topics.append(topic_name)
+        
+        # Remove duplicates and sort
+        topics = sorted(list(set(topics)))
+        
+        print(f"Found {len(topics)} total topics")
+        return Response({"topics": topics})
+    except Exception as e:
+        print(f"Error getting all topics: {str(e)}")
+        return Response({"error": f"Failed to get topics: {str(e)}"}, status=500)
