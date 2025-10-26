@@ -45,7 +45,7 @@ const SubcategoriesPage = () => {
       name: 'Sports',
       icon: '⚽',
       color: 'blue',
-      subcategories: ['NBA', 'NFL', 'Soccer', 'Tennis', 'Baseball', 'Hockey', 'Golf', 'Olympics']
+      subcategories: ['NBA', 'NFL', 'Football', 'Tennis', 'Baseball', 'Hockey', 'Golf', 'Olympics']
     },
     'politics': {
       name: 'Politics',
