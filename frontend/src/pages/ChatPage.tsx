@@ -389,7 +389,7 @@ const ChatPage = () => {
     setLoading(true);
     
     try {
-      // Show typing indicator
+      // Show typing indicators
       setIsTyping(true);
       
       // Use a default topic for general chat (will default to ancient_history on backend if not found)

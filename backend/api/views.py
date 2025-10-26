@@ -21,6 +21,7 @@ from chatbot.gemini_interface import (
     get_gemini_response,
     get_gemini_response_stream,
     extract_terms_from_pdf,
+    get_word_description,
 )
 
 class MessageSerializer(serializers.ModelSerializer):
@@ -31,7 +32,7 @@ class MessageSerializer(serializers.ModelSerializer):
 class ConversationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Conversation
-        fields = ['id', 'title', 'created_at', 'updated_at', 'score', 'current_word', 'guesses_remaining', 'num_rounds']
+        fields = ['id', 'title', 'created_at', 'updated_at', 'score', 'current_word', 'word_description', 'guesses_remaining', 'num_rounds']
 
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -164,6 +165,9 @@ def chat_stream(request, topic_name):
                         return False
                     
                     if "__TIMEOUT__" in user_prompt:
+                        # Timer ran out - generate description of the missed word
+                        old_word = conversation.current_word
+                        conversation.word_description = get_word_description(old_word, topic_name)
                         conversation.num_rounds -= 1
                         conversation.current_word = get_word(topic_name)
                         conversation.guesses_remaining = 3
@@ -174,6 +178,9 @@ def chat_stream(request, topic_name):
                         
                         # Check if AI guessed the word OR if user used the backdoor "ORAN"
                         if (is_near_match(conversation.current_word,self.text) or "ORAN" in user_prompt):
+                            # AI guessed correctly - generate description of the guessed word
+                            old_word = conversation.current_word
+                            conversation.word_description = get_word_description(old_word, topic_name)
                             conversation.score += 1
                             conversation.num_rounds -= 1
                             conversation.current_word = get_word(topic_name)
@@ -182,6 +189,9 @@ def chat_stream(request, topic_name):
                             request.user.userprofile.rounds_played += 1
                             request.user.userprofile.save()
                         elif (conversation.guesses_remaining == 0):
+                            # Out of guesses - generate description of the missed word
+                            old_word = conversation.current_word
+                            conversation.word_description = get_word_description(old_word, topic_name)
                             conversation.num_rounds -= 1
                             conversation.current_word = get_word(topic_name)
                             conversation.guesses_remaining = 3

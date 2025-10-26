@@ -31,6 +31,8 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
   const authContext = useAuth();
   const [gameSessionId, setGameSessionId] = useState<string>('');
   const [currentWord, setCurrentWord] = useState('');
+  const [displayedWord, setDisplayedWord] = useState(''); // Word shown to user during active round
+  const [wordDescription, setWordDescription] = useState(''); // AI-generated description of the word
   const [messages, setMessages] = useState<Message[]>([]);
   const [timeLeft, setTimeLeft] = useState(30);
   const [isRoundActive, setIsRoundActive] = useState(true);
@@ -137,6 +139,7 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
         
         setGameSessionId(conversationId);
         setCurrentWord(convData.current_word);
+        setDisplayedWord(convData.current_word); // Set initial displayed word
         setCurrentScore(convData.score || 0);
         setGuessesRemaining(convData.guesses_remaining || 0);
         
@@ -190,6 +193,7 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
 
         const convData = await response.json();
         setCurrentWord(convData.current_word);
+        setDisplayedWord(convData.current_word); // Update displayed word for new round
         setCurrentScore(convData.score || 0);
         setGuessesRemaining(convData.guesses_remaining || 0);
         
@@ -211,6 +215,7 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
         setTimeLeft(30);
         setIsRoundActive(true);
         setCluesGiven([]);
+        setWordDescription(''); // Clear previous word description
         setRoundStartTime(Date.now());
       } catch (error) {
         console.error('Failed to initialize round:', error);
@@ -244,6 +249,20 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Display word description when it's updated (after timeout or out of guesses)
+  useEffect(() => {
+    if (wordDescription && !isRoundActive) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: (Date.now() + 1).toString(),
+          type: 'system',
+          text: `Answer: \n\n${wordDescription}`,
+        },
+      ]);
+    }
+  }, [wordDescription]);
 
   const handleSubmitClue = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -393,6 +412,7 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
                     
                     setCurrentScore(newScore);
                     setCurrentWord(convData.current_word);
+                    setWordDescription(convData.word_description || '');
                     
                     // Pass the guessed word to handleRoundEnd
                     handleRoundEnd(true, guessedWord);
@@ -401,6 +421,7 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
                     const oldWord = currentWord;
                     setCurrentWord(convData.current_word);
                     setGuessesRemaining(convData.guesses_remaining);
+                    setWordDescription(convData.word_description || '');
                     handleRoundEnd(false, oldWord);
                   }
                 }
@@ -512,7 +533,9 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
                         const convData = await convResponse.json();
                         setCurrentWord(convData.current_word);
                         setGuessesRemaining(convData.guesses_remaining || 3);
+                        setWordDescription(convData.word_description || '');
                         console.log('New word after timeout:', convData.current_word);
+                        console.log('Word description:', convData.word_description);
                       }
                       break;
                     }
@@ -630,7 +653,17 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
                 </svg>
                 Time Remaining
               </span>
-              <span className="text-gray-900 dark:text-white font-semibold">{timeLeft}s</span>
+              <div className="flex items-center gap-3">
+                <span className="text-gray-900 dark:text-white font-semibold">{timeLeft}s</span>
+                {isRoundActive && (
+                  <button
+                    onClick={() => handleRoundEnd(false, undefined, true)}
+                    className="px-3 py-1 bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 text-white text-xs font-semibold rounded transition-colors duration-200"
+                  >
+                    End Timer
+                  </button>
+                )}
+              </div>
             </div>
             <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
               <div 
@@ -652,7 +685,7 @@ export function GameScreen({ gameData, setGameData, onEndGame, onBack }: GameScr
             </svg>
             <div className="text-center">
               <p className="text-gray-600 dark:text-gray-300 mb-1 text-sm">Your Word to Describe:</p>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{currentWord}</h2>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{displayedWord}</h2>
             </div>
           </div>
         </div>
