@@ -80,5 +80,4 @@ class PromptLog(models.Model):
 
 @receiver(post_save, sender=User)
 def create_or_update_user_profile(sender, instance, **kwargs):
-    # Idempotent: will create the profile if missing and avoid UNIQUE constraint failures
     UserProfile.objects.get_or_create(user=instance)
