@@ -132,7 +132,6 @@ def chat_stream(request, topic_name):
                     )
                     print(f"Saved bot message with ID: {self.bot_message.id}, length: {len(self.text)}")
 
-                    # fuzzy / near-match helper
                     def _normalize(s):
                         return re.sub(r'[^a-z0-9\s]', '', (s or "").lower()).strip()
                     
@@ -141,23 +140,23 @@ def chat_stream(request, topic_name):
                             return False
                         text_n = _normalize(text)
                         target_n = _normalize(target)
-                        # exact substring
+
                         if target_n and target_n in text_n:
                             return True
-                        # all target tokens appear somewhere in text (e.g., "empire state" in "empire state building")
+
                         if token_subset:
                             t_tokens = [t for t in target_n.split() if t]
                             txt_tokens = [t for t in text_n.split() if t]
                             if t_tokens and set(t_tokens).issubset(set(txt_tokens)):
                                 return True
-                        # fuzzy ratio against entire text
+
                         if difflib.SequenceMatcher(None, target_n, text_n).ratio() >= ratio_threshold:
                             return True
-                                                # fuzzy ratio against sliding windows of text tokens (catch shorter matches)
+
                         tlen = len(target_n.split())
                         txt_tokens = text_n.split()
                         if tlen > 0 and len(txt_tokens) >= 1:
-                            # check window sizes around target length
+
                             for w in range(max(1, tlen), min(len(txt_tokens), tlen + 3) + 1):
                                 for i in range(0, len(txt_tokens) - w + 1):
                                     window = " ".join(txt_tokens[i:i+w])
@@ -165,7 +164,6 @@ def chat_stream(request, topic_name):
                                         return True
                         return False
                     
-                    # Check for timeout signal first - don't decrement guesses for timeout
                     if "__TIMEOUT__" in user_prompt:
                         # Timer ran out - generate description of the missed word
                         old_word = conversation.current_word
@@ -176,7 +174,6 @@ def chat_stream(request, topic_name):
                         request.user.userprofile.rounds_played += 1
                         request.user.userprofile.save()
                     else:
-                        # Normal guess logic
                         conversation.guesses_remaining -= 1
                         
                         # Check if AI guessed the word OR if user used the backdoor "ORAN"
@@ -344,7 +341,6 @@ def register_user(request):
             # Create user - this will automatically trigger the signal to create UserProfile
             user = User.objects.create_user(username=username, email=email, password=password)
             
-            # Create token
             token, _ = Token.objects.get_or_create(user=user)
         
         return Response({

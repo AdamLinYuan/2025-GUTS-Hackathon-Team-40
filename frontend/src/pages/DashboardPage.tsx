@@ -69,8 +69,9 @@ const DashboardPage = () => {
                 <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-2"> {userprofile.rounds_played}</p>
               </div>
               <div className="bg-blue-100 dark:bg-blue-900 p-3 rounded-full">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 26 26" className="h-7 w-7 text-blue-600 dark:text-blue-400" fill="currentColor" aria-hidden="true">
+                  <polygon points="9.33 6.69 9.33 19.39 19.3 13.04 9.33 6.69"/>
+                  <path d="M26,13A13,13,0,1,1,13,0,13,13,0,0,1,26,13ZM13,2.18A10.89,10.89,0,1,0,23.84,13.06,10.89,10.89,0,0,0,13,2.18Z"/>
                 </svg>
               </div>
             </div>
@@ -102,8 +103,11 @@ const DashboardPage = () => {
                 </p>
               </div>
               <div className="bg-purple-100 dark:bg-purple-900 p-3 rounded-full">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                <svg className='h-8 w-8 text-purple-600 dark:text-purple-400' fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <path d="M5 3h10c-.495 3.467-.5 10-5 10S5.495 6.467 5 3zm0 15a1 1 0 011-1h8a1 1 0 011 1H5zm2-1a1 1 0 011-1h4a1 1 0 011 1H7z"/>
+                  <path fill-rule="evenodd" d="M14.5 5a2 2 0 100 4 2 2 0 000-4zm-3 2a3 3 0 116 0 3 3 0 01-6 0zm-6-2a2 2 0 100 4 2 2 0 000-4zm-3 2a3 3 0 116 0 3 3 0 01-6 0z" clip-rule="evenodd"/>
+                  <path d="M9 12h2v4H9v-4z"/>
+                  <path d="M12 13c0 .552-.895 1-2 1s-2-.448-2-1 .895-1 2-1 2 .448 2 1z"/>
                 </svg>
               </div>
             </div>
